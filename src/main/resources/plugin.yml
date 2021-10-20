@@ -1,0 +1,5 @@
+name: xpEconomy
+version: "beta"
+author: Nathan Klein
+main: com.gmail.neklein3.master.Main
+api-version: 1.17
