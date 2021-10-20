@@ -3,3 +3,8 @@ version: "beta"
 author: Nathan Klein
 main: com.gmail.neklein3.master.Main
 api-version: 1.17
+commands:
+  spawnEmployer:
+    description: Summons a Job Contractor to sell jobs to players
+    usage: /spawnEmployer
+    permission: xpEconomy.spawnEmployer
