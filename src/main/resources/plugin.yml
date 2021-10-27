@@ -7,4 +7,8 @@ commands:
   spawnEmployer:
     description: Summons a Job Contractor to sell jobs to players
     usage: /spawnEmployer
-    permission: xpEconomy.spawnEmployer
+    permission: xpEconomy.admin
+  giveMoneyXp:
+    description: Redeems 1 dollar to the specified player
+    usage: /giveMoneyXp <player>
+    permission: xpEconomy.admin

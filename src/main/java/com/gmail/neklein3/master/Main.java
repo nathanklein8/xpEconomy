@@ -8,8 +8,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -19,15 +17,14 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-        //
-        System.out.println("registering files");
-        this.getConfig().options().copyDefaults();
-        saveDefaultConfig();
-        try {
-            initiateFiles();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
+//        System.out.println("registering files");
+//        this.getConfig().options().copyDefaults();
+//        saveDefaultConfig();
+//        try {
+//            initiateFiles();
+//        } catch (IOException e){
+//            e.printStackTrace();
+//        }
 
 
         getLogger().info("registering events...");
@@ -38,6 +35,7 @@ public class Main extends JavaPlugin implements Listener {
 
         getLogger().info("adding commands...");
         this.getCommand("spawnEmployer").setExecutor(new EmployerCommand());
+        this.getCommand("giveMoneyXp").setExecutor(new LevelUpCommand(this));
         getLogger().info("commands have been added");
     }
 
