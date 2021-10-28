@@ -12,3 +12,7 @@ commands:
     description: Redeems 1 dollar to the specified player
     usage: /giveMoneyXp <player>
     permission: xpEconomy.admin
+  atmTwoWayMode:
+    description: Turns on or off two way conversion on ATMs
+    usage: /atmTwoWayMode <on/off>
+    permission: xpEconomy.admin

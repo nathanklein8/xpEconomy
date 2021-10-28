@@ -11,9 +11,6 @@ import java.util.ArrayList;
 
 public class Main extends JavaPlugin implements Listener {
 
-//    private File atmFile;
-//    private YamlConfiguration modifyAtmFile;
-
     FileConfiguration config = getConfig();
 
     ArrayList<Location> atmLocations = new ArrayList<>();
@@ -43,16 +40,6 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-//        System.out.println("registering files");
-//        this.getConfig().options().copyDefaults();
-//        saveDefaultConfig();
-//        try {
-//            initiateFiles();
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-
-
         getLogger().info("registering events...");
         this.getServer().getPluginManager().registerEvents(new Bank(this), this);
         getServer().getPluginManager().registerEvents(this, this);
@@ -60,12 +47,14 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("events have been registered");
 
         getLogger().info("adding commands...");
-        this.getCommand("spawnEmployer").setExecutor(new EmployerCommand());
-        this.getCommand("giveMoneyXp").setExecutor(new LevelUpCommand(this));
+        this.getCommand("atmTwoWayMode").setExecutor(new ConfigCommands(this));
         getLogger().info("commands have been added");
 
+        getLogger().info("adding config defaults...");
         config.addDefault("atmLocations", atmLocations);
+        config.addDefault("atmTwoWayMode", true);
         saveConfig();
+        getLogger().info("config has been defaulted");
 
     }
 
@@ -73,20 +62,6 @@ public class Main extends JavaPlugin implements Listener {
     public void onDisable() {
 
     }
-
-//    public YamlConfiguration modifyAtmFile() { return modifyAtmFile; }
-//    public File getAtmFile() { return atmFile; }
-//
-//    public void initiateFiles() throws IOException {
-//        atmFile = new File(Bukkit.getServer().getPluginManager().getPlugin("xpEconomy").getDataFolder(), "atmFile.yml");
-//        if (!atmFile.exists()) {
-//            atmFile.createNewFile();
-//            modifyAtmFile().save(this.getAtmFile());
-//        }
-//        modifyAtmFile = YamlConfiguration.loadConfiguration(atmFile);
-//        modifyAtmFile().save(this.getAtmFile());
-//        //end of initiateFiles
-//    }
 
     public String color(final String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
