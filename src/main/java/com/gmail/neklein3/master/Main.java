@@ -2,7 +2,9 @@ package com.gmail.neklein3.master;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,64 +15,54 @@ public class Main extends JavaPlugin implements Listener {
 
     FileConfiguration config = getConfig();
 
-    ArrayList<Location> atmLocations = new ArrayList<>();
+    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
 
-    public void addATMLocation(Location location) {
-        // adds location to atm locations if it's not already in the list
-        if (!(atmLocations.contains(location))) {
-            atmLocations.add(location);
-            config.set("atmLocations", atmLocations);
+    public void addTellerMachineToList(TellerMachine tellerMachine) {
+        TellerMachineList.add(tellerMachine);
+        config.set("TellerMachineList", TellerMachineList);
+        saveConfig();
+    }
+
+    public void removeTellerMachine(TellerMachine tellerMachine) {
+        TellerMachineList.remove(tellerMachine);
+        config.set("TellerMachineList", TellerMachineList);
+        saveConfig();
+    }
+
+    public void removeIfTellerMachine(Block block) {
+        if (isSign(block)) {
+            TellerMachineList.removeIf(tm -> tm.getLocation().equals(block.getLocation()));
+            config.set("TellerMachineList", TellerMachineList);
             saveConfig();
         }
     }
 
-    public void removeATMLocation(Location location) {
-        // removes location from the list if it is an atm location
-        if (atmLocations.contains(location)) {
-            atmLocations.remove(location);
-            config.set("atmLocations", atmLocations);
-            saveConfig();
+    // check if a block is a teller machine and change it's enabled to the specified value
+    public void changeStatusIfTellerMachine(Block block, Boolean bool) {
+        if (isSign(block)) {
+            for (TellerMachine tm : TellerMachineList) {
+                if (tm.getLocation().equals(block.getLocation())) {
+                    tm.setEnabled(bool);
+                }
+            }
         }
     }
 
-    public boolean isATMLocation(Location location) {
-        return atmLocations.contains(location);
+    // check if a block is a TellerMachine
+    public Boolean isTellerMachine(Block block) {
+        if (isSign(block)) {
+            for (TellerMachine tm : TellerMachineList) {
+                if (tm.getLocation().equals(block.getLocation())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-//    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
-//
-//    public void addTellerMachine(TellerMachine tellerMachine) {
-//        TellerMachineList.add(tellerMachine);
-//        config.set("TellerMachineList", TellerMachineList);
-//        saveConfig();
-//    }
-//
-//    public void removeTellerMachine(TellerMachine tellerMachine) {
-//        TellerMachineList.remove(tellerMachine);
-//        config.set("TellerMachineList", TellerMachineList);
-//        saveConfig();
-//    }
-//
-//    public void removeIfTellerMachine(Location location) {
-//        TellerMachineList.removeIf(tm -> tm.getLocation().equals(location));
-//    }
-//
-//    public void changeStatusIfTellerMachine(Location location, Boolean bool) {
-//        for (TellerMachine tm : TellerMachineList) {
-//            if (tm.getLocation().equals(location)) {
-//                tm.setEnabled(bool);
-//            }
-//        }
-//    }
-//
-//    public Boolean isTellerMachine(Location location) {
-//        for (TellerMachine tm : TellerMachineList) {
-//            if (tm.getLocation().equals(location)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    public Boolean isSign(Block block) {
+        return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
+    }
 
     @Override
     public void onEnable() {
@@ -86,7 +78,7 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("commands have been added");
 
         getLogger().info("adding config defaults...");
-        config.addDefault("atmLocations", atmLocations);
+        config.addDefault("TellerMachineList", TellerMachineList);
         config.addDefault("atmTwoWayMode", true);
         saveConfig();
         getLogger().info("config has been defaulted");
