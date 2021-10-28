@@ -37,6 +37,41 @@ public class Main extends JavaPlugin implements Listener {
         return atmLocations.contains(location);
     }
 
+//    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
+//
+//    public void addTellerMachine(TellerMachine tellerMachine) {
+//        TellerMachineList.add(tellerMachine);
+//        config.set("TellerMachineList", TellerMachineList);
+//        saveConfig();
+//    }
+//
+//    public void removeTellerMachine(TellerMachine tellerMachine) {
+//        TellerMachineList.remove(tellerMachine);
+//        config.set("TellerMachineList", TellerMachineList);
+//        saveConfig();
+//    }
+//
+//    public void removeIfTellerMachine(Location location) {
+//        TellerMachineList.removeIf(tm -> tm.getLocation().equals(location));
+//    }
+//
+//    public void changeStatusIfTellerMachine(Location location, Boolean bool) {
+//        for (TellerMachine tm : TellerMachineList) {
+//            if (tm.getLocation().equals(location)) {
+//                tm.setEnabled(bool);
+//            }
+//        }
+//    }
+//
+//    public Boolean isTellerMachine(Location location) {
+//        for (TellerMachine tm : TellerMachineList) {
+//            if (tm.getLocation().equals(location)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
     @Override
     public void onEnable() {
 
