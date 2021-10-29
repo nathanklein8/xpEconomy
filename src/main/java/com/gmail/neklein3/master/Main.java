@@ -10,12 +10,28 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.List;
+
 
 public class Main extends JavaPlugin implements Listener {
 
     FileConfiguration config = getConfig();
 
-    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
+
+    List<?> configList = config.getList("TellerMachineList");
+    // this stuff throws some nasty errors
+    @SuppressWarnings("unchecked")
+    ArrayList<TellerMachine> TellerMachineList = (ArrayList<TellerMachine>) configList;
+    // to go back to normal function, change the above to:
+    // ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
+
+//    public void copyConfigs() {
+//        @SuppressWarnings("unchecked")
+//        List<TellerMachine> configList = (List<TellerMachine>) config.getList("TellerMachineList");
+//
+//        assert configList != null;
+//        TellerMachineList.addAll(configList);
+//    }
 
     public void addTellerMachineToList(TellerMachine tellerMachine) {
         TellerMachineList.add(tellerMachine);
@@ -78,16 +94,17 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Commands registered.");
 
         getLogger().info("Registering config defaults...");
-        config.addDefault("TellerMachineList", TellerMachineList);
+
         config.addDefault("atmTwoWayMode", true);
         saveConfig();
+
         getLogger().info("Default Config registered.");
 
     }
 
     @Override
     public void onDisable() {
-        saveDefaultConfig();
+        config.set("TellerMachineList", TellerMachineList);
         saveConfig();
     }
 

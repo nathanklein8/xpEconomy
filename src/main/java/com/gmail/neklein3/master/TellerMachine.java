@@ -9,16 +9,18 @@ public class TellerMachine {
     // TellerMachine is an object type that has two variables, location and enabled status.
 
     Block block;
+    Location location;
     Boolean enabled;
 
     // used when creating a new instance of TellerMachine.  takes one input: the location of it
     public TellerMachine(Block block) {
         this.block = block;
+        location = block.getLocation();
     }
 
     // .getLocation() returns the location of the TellerMachine
     public Location getLocation() {
-        return block.getLocation();
+        return location;
     }
 
     // .setEnabled sets the boolean status of enabled
