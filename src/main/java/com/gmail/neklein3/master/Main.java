@@ -67,27 +67,28 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-        getLogger().info("registering events...");
+        getLogger().info("Registering events...");
         this.getServer().getPluginManager().registerEvents(new Bank(this), this);
         getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new Atm(this), this);
-        getLogger().info("events have been registered");
+        getLogger().info("Events registered.");
 
-        getLogger().info("adding commands...");
+        getLogger().info("Registering commands...");
         this.getCommand("atmTwoWayMode").setExecutor(new ConfigCommands(this));
-        getLogger().info("commands have been added");
+        getLogger().info("Commands registered.");
 
-        getLogger().info("adding config defaults...");
+        getLogger().info("Registering config defaults...");
         config.addDefault("TellerMachineList", TellerMachineList);
         config.addDefault("atmTwoWayMode", true);
         saveConfig();
-        getLogger().info("config has been defaulted");
+        getLogger().info("Default Config registered.");
 
     }
 
     @Override
     public void onDisable() {
-
+        saveDefaultConfig();
+        saveConfig();
     }
 
     public String color(final String string) {

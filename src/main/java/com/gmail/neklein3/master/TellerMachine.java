@@ -1,5 +1,6 @@
 package com.gmail.neklein3.master;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -28,6 +29,14 @@ public class TellerMachine {
     // .getEnabled() returns true/false status of enabled
     public Boolean getEnabled() {
         return enabled;
+    }
+
+    public String getStatus() {
+        if (enabled) {
+            return "" + ChatColor.GREEN + "Online!";
+        } else {
+            return "" + ChatColor.RED + "Offline!";
+        }
     }
 
 }
