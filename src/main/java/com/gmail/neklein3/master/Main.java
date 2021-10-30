@@ -21,9 +21,9 @@ public class Main extends JavaPlugin implements Listener {
     List<?> configList = config.getList("TellerMachineList");
     // this stuff throws some nasty errors
     @SuppressWarnings("unchecked")
-    ArrayList<TellerMachine> TellerMachineList = (ArrayList<TellerMachine>) configList;
+    //ArrayList<TellerMachine> TellerMachineList = (ArrayList<TellerMachine>) configList;
     // to go back to normal function, change the above to:
-    // ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
+    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
 
 //    public void copyConfigs() {
 //        @SuppressWarnings("unchecked")
@@ -87,6 +87,7 @@ public class Main extends JavaPlugin implements Listener {
         this.getServer().getPluginManager().registerEvents(new Bank(this), this);
         getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new Atm(this), this);
+        Bukkit.getPluginManager().registerEvents(new AtmMenuListener(this), this);
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");
