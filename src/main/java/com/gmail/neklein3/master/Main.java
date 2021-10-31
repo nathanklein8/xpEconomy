@@ -31,7 +31,6 @@ public class Main extends JavaPlugin implements Listener {
         }
         config = YamlConfiguration.loadConfiguration(file);
     }
-
     public static void saveConfigFile() {
         File file = new File(s + "/plugins/xpEconomy", "config.yml");
         try {
@@ -42,6 +41,39 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     List<TellerMachine> TellerMachineList = new ArrayList<>();
+    List<ExchangeTerminal> ExchangeTerminalList = new ArrayList<>();
+
+    public void addExchangeTerminalToList(ExchangeTerminal exchangeTerminal) {
+        ExchangeTerminalList.add(exchangeTerminal);
+        config.set("ExchangeTerminalList", ExchangeTerminalList);
+        saveConfigFile();
+    }
+
+    public void removeIfExchangeTerminal(Block block) {
+        if (isSign(block)) {
+            ExchangeTerminalList.removeIf(et -> et.getLocation().equals(block.getLocation()));
+        }
+    }
+
+    public ExchangeTerminal getExchangeTerminal(Location l) {
+        for (ExchangeTerminal et : ExchangeTerminalList) {
+            if (et.getLocation().equals(l)) {
+                return et;
+            }
+        }
+        return null;
+    }
+
+    public Boolean isExchangeTerminal(Block block) {
+        if (isSign(block)) {
+            for (ExchangeTerminal et : ExchangeTerminalList) {
+                if (et.getLocation().equals(block.getLocation())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public void addTellerMachineToList(TellerMachine tellerMachine) {
         TellerMachineList.add(tellerMachine);
@@ -87,11 +119,15 @@ public class Main extends JavaPlugin implements Listener {
 
         getLogger().info("Serializing config...");
         ConfigurationSerialization.registerClass(TellerMachine.class, "TellerMachine");
+        ConfigurationSerialization.registerClass(ExchangeTerminal.class, "ExchangeTerminal");
         getLogger().info("Loading config...");
         loadConfig();
         saveConfigFile();
         if (config.get("TellerMachineList") != null) {
             TellerMachineList = (List<TellerMachine>) config.get("TellerMachineList");
+        }
+        if (config.get("ExchangeTerminalList") != null) {
+            ExchangeTerminalList = (List<ExchangeTerminal>) config.get("ExchangeTerminalList");
         }
         getLogger().info("Config loaded.");
 

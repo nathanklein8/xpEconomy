@@ -131,8 +131,6 @@ public class Atm implements Listener {
     @EventHandler
     public void onBreakSign(BlockBreakEvent e) {
         Block block = e.getBlock();
-
-        // remove the location of the sign from the atmLocation list if that location was already in the list
         main.removeIfTellerMachine(block);
     }
 
@@ -159,36 +157,5 @@ public class Atm implements Listener {
                 }
             }
         }
-
-        if (action.equals(Action.RIGHT_CLICK_BLOCK)) { // if the atm is on, it'll send a message in the console
-            if (main.isTellerMachine(block)) {
-                if (block != null) {
-                    for (TellerMachine tm : main.TellerMachineList) {
-                        if (tm.getLocation().equals(block.getLocation())) {
-                            if (tm.getEnabled()) {
-                                e.getPlayer().sendMessage("teller clicked!");
-                                applyAtmUI(e.getPlayer());
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (action.equals(Action.LEFT_CLICK_BLOCK)) {  // this toggles the atms on and off for now
-            if (main.isTellerMachine(block)) {
-                if (block != null) {
-                    for (TellerMachine tm : main.TellerMachineList) {
-                        if (tm.getLocation().equals(block.getLocation())) {
-                            if(tm.getEnabled()) {
-                                e.getPlayer().sendMessage("teller disabled.");
-                            } else {
-                                e.getPlayer().sendMessage("teller enabled.");
-                            }
-                            tm.setEnabled(!tm.getEnabled());
-                        }
-                    }
-                }
-            }
-        }
     }
-
 }
