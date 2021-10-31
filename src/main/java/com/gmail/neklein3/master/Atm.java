@@ -141,8 +141,24 @@ public class Atm implements Listener {
         Block block = e.getClickedBlock();
         Action action = e.getAction();
 
-        // executes twice i think cause offhand
-        // i have a code snippet to cancel that that ill add later
+        if (block != null) {
+            if (main.isTellerMachine(block)) {
+                TellerMachine tm = main.getTellerMachine(block.getLocation());
+                if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
+                    if (tm.getEnabled()) {
+                        e.getPlayer().sendMessage("teller clicked!");
+                        applyAtmUI(e.getPlayer());
+                    }
+                } else if (action.equals(Action.LEFT_CLICK_BLOCK)) {
+                    if(tm.getEnabled()) {
+                        e.getPlayer().sendMessage("teller disabled.");
+                    } else {
+                        e.getPlayer().sendMessage("teller enabled.");
+                    }
+                    tm.setEnabled(!tm.getEnabled());
+                }
+            }
+        }
 
         if (action.equals(Action.RIGHT_CLICK_BLOCK)) { // if the atm is on, it'll send a message in the console
             if (main.isTellerMachine(block)) {
@@ -151,10 +167,7 @@ public class Atm implements Listener {
                         if (tm.getLocation().equals(block.getLocation())) {
                             if (tm.getEnabled()) {
                                 e.getPlayer().sendMessage("teller clicked!");
-                                main.getLogger().info("right clicked teller machine");
                                 applyAtmUI(e.getPlayer());
-
-
                             }
                         }
                     }

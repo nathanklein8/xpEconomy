@@ -46,14 +46,14 @@ public class Main extends JavaPlugin implements Listener {
     public void addTellerMachineToList(TellerMachine tellerMachine) {
         TellerMachineList.add(tellerMachine);
         config.set("TellerMachineList", TellerMachineList);
-        saveConfig();
+        saveConfigFile();
     }
 
     public void removeIfTellerMachine(Block block) {
         if (isSign(block)) {
             TellerMachineList.removeIf(tm -> tm.getLocation().equals(block.getLocation()));
             config.set("TellerMachineList", TellerMachineList);
-            saveConfig();
+            saveConfigFile();
         }
     }
 
@@ -66,7 +66,6 @@ public class Main extends JavaPlugin implements Listener {
         return null;
     }
 
-    // check if a block is a TellerMachine
     public Boolean isTellerMachine(Block block) {
         if (isSign(block)) {
             for (TellerMachine tm : TellerMachineList) {
