@@ -4,14 +4,6 @@ author: Nathan Klein
 main: com.gmail.neklein3.master.Main
 api-version: 1.17
 commands:
-  spawnEmployer:
-    description: Summons a Job Contractor to sell jobs to players
-    usage: /spawnEmployer
-    permission: xpEconomy.admin
-  giveMoneyXp:
-    description: Redeems 1 dollar to the specified player
-    usage: /giveMoneyXp <player>
-    permission: xpEconomy.admin
   atmTwoWayMode:
     description: Turns on or off two way conversion on ATMs
     usage: /atmTwoWayMode <on/off>

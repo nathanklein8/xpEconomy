@@ -2,45 +2,49 @@ package com.gmail.neklein3.master;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Main extends JavaPlugin implements Listener {
 
-    FileConfiguration config = getConfig();
+    static String s = Paths.get("").toAbsolutePath().toString();
 
+    public static File file;
+    public static FileConfiguration config;
 
-    List<?> configList = config.getList("TellerMachineList");
-    // this stuff throws some nasty errors
-    @SuppressWarnings("unchecked")
-    //ArrayList<TellerMachine> TellerMachineList = (ArrayList<TellerMachine>) configList;
-    // to go back to normal function, change the above to:
-    ArrayList<TellerMachine> TellerMachineList = new ArrayList<>();
+    public void loadConfig() {
+        if (file == null) {
+            file = new File(s + "/plugins/xpEconomy", "config.yml");
+        }
+        config = YamlConfiguration.loadConfiguration(file);
+    }
 
-//    public void copyConfigs() {
-//        @SuppressWarnings("unchecked")
-//        List<TellerMachine> configList = (List<TellerMachine>) config.getList("TellerMachineList");
-//
-//        assert configList != null;
-//        TellerMachineList.addAll(configList);
-//    }
+    public static void saveConfigFile() {
+        File file = new File(s + "/plugins/xpEconomy", "config.yml");
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    List<TellerMachine> TellerMachineList = new ArrayList<>();
 
     public void addTellerMachineToList(TellerMachine tellerMachine) {
         TellerMachineList.add(tellerMachine);
-        config.set("TellerMachineList", TellerMachineList);
-        saveConfig();
-    }
-
-    public void removeTellerMachine(TellerMachine tellerMachine) {
-        TellerMachineList.remove(tellerMachine);
         config.set("TellerMachineList", TellerMachineList);
         saveConfig();
     }
@@ -53,15 +57,13 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    // check if a block is a teller machine and change it's enabled to the specified value
-    public void changeStatusIfTellerMachine(Block block, Boolean bool) {
-        if (isSign(block)) {
-            for (TellerMachine tm : TellerMachineList) {
-                if (tm.getLocation().equals(block.getLocation())) {
-                    tm.setEnabled(bool);
-                }
+    public TellerMachine getTellerMachine(Location l) {
+        for (TellerMachine tm : TellerMachineList) {
+            if (tm.getLocation().equals(l)) {
+                return tm;
             }
         }
+        return null;
     }
 
     // check if a block is a TellerMachine
@@ -80,8 +82,19 @@ public class Main extends JavaPlugin implements Listener {
         return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onEnable() {
+
+        getLogger().info("Serializing config...");
+        ConfigurationSerialization.registerClass(TellerMachine.class, "TellerMachine");
+        getLogger().info("Loading config...");
+        loadConfig();
+        saveConfigFile();
+        if (config.get("TellerMachineList") != null) {
+            TellerMachineList = (List<TellerMachine>) config.get("TellerMachineList");
+        }
+        getLogger().info("Config loaded.");
 
         getLogger().info("Registering events...");
         this.getServer().getPluginManager().registerEvents(new Bank(this), this);
@@ -91,22 +104,16 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");
-        this.getCommand("atmTwoWayMode").setExecutor(new ConfigCommands(this));
+        this.getCommand("atmTwoWayMode").setExecutor(new ConfigCommands());
         getLogger().info("Commands registered.");
 
-        getLogger().info("Registering config defaults...");
-
-        config.addDefault("atmTwoWayMode", true);
-        saveConfig();
-
-        getLogger().info("Default Config registered.");
 
     }
 
     @Override
     public void onDisable() {
         config.set("TellerMachineList", TellerMachineList);
-        saveConfig();
+        saveConfigFile();
     }
 
     public String color(final String string) {

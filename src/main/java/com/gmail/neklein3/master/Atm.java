@@ -27,7 +27,7 @@ public class Atm implements Listener {
         Block block = e.getBlock();
         if(e.getLine(0) != null && e.getLine(0).equals("[atm]")) {
             //logs the sign location in atmLocations in the config
-            TellerMachine atm = new TellerMachine(block);
+            TellerMachine atm = new TellerMachine(block.getLocation());
             atm.setEnabled(true);
             main.addTellerMachineToList(atm);
 

@@ -7,11 +7,6 @@ import org.bukkit.entity.Player;
 
 public class ConfigCommands implements CommandExecutor {
 
-    Main main;
-    ConfigCommands(Main m) {
-        this.main = m;
-    }
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -20,18 +15,18 @@ public class ConfigCommands implements CommandExecutor {
             // if they sent arguments
             if (args.length > 0) {
                 if (args[0].equals("on")) {
-                    main.config.set("atmTwoWayMode", true);
+                    Main.config.set("atmTwoWayMode", true);
                     if (sender instanceof Player) {
                         sender.sendMessage("Enabled ATM Two Way Mode");
                     }
-                    main.saveConfig();
+                    Main.saveConfigFile();
                     return true;
                 } else if (args[0].equals("off")) {
-                    main.config.set("atmTwoWayMode", false);
+                    Main.config.set("atmTwoWayMode", false);
                     if (sender instanceof Player) {
                         sender.sendMessage("Disabled ATM Two Way Mode");
                     }
-                    main.saveConfig();
+                    Main.saveConfigFile();
                     return true;
                 }
             }
