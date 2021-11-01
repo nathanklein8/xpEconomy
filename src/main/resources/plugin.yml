@@ -9,6 +9,8 @@ commands:
     usage: /exchangeTerminalTwoWayMode <on/off>
     permission: xpEconomy.admin
   assignBanker:
-    description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time
+    description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time.  To clear the role of Banker, type /assignBanker removeBanker
     usage: /assignBanker <player>
     permission: xpEconomy.admin
+  universalBankCreation:
+    description: Toggles whether or not to allow all players to create ExchangeTerminals.  The Banker always has the ability to make Exchange Terminals.

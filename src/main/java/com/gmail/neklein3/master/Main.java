@@ -3,6 +3,7 @@ package com.gmail.neklein3.master;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Sign;
 import org.bukkit.block.data.type.WallSign;
@@ -10,7 +11,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -114,6 +119,14 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
+    public void changeSignText(Block block, int line, String text) {
+        if (isSign(block)) {
+            org.bukkit.block.Sign sign = (org.bukkit.block.Sign) block.getState();
+            sign.setLine(line, text);
+            sign.update();
+        }
+    }
+
     public Boolean isSign(Block block) {
         return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
     }
@@ -141,6 +154,91 @@ public class Main extends JavaPlugin implements Listener {
         }
         return null;
     }
+
+    // before calling, check if null
+    public Boolean getUniversalBankCreation() {
+        if (config.get("universalBankCreation") != null) {
+            return (Boolean) config.get("universalBankCreation");
+        }
+        return null;
+    }
+
+    public Boolean checkNameAndNumber(ItemStack item, String displayName, int customModelData) {
+        if (item.hasItemMeta()) {
+            if (item.getItemMeta().hasDisplayName()) {
+                if (item.getItemMeta().getDisplayName().equals(displayName)) {
+                    if (item.getItemMeta().hasCustomModelData()) {
+                        return item.getItemMeta().getCustomModelData() == customModelData;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public String withdraw = "withdraw";
+    public String deposit = "deposit";
+    public String xpToCash = "xpToCash";
+    public String cashToXp = "cashToXp";
+    public void transaction(String transactionType, Player p) {
+
+        ItemStack currency = new ItemStack(Material.ACACIA_FENCE, 1);
+        ItemMeta currencyMeta = currency.getItemMeta();
+        String name = "Money!";
+        int modelDataNumber = 69;
+        currencyMeta.setDisplayName(name);
+        currency.setItemMeta(currencyMeta);
+
+        String playerUUIDString = p.getUniqueId().toString();
+        String path = playerUUIDString + ".currentBalance";
+        assert config.get(path) != null;
+        int playerBalance = (int) config.get(path);
+
+        if (transactionType.equalsIgnoreCase(xpToCash)) {
+            if (p.getLevel() >= 1) {
+                // give them money and lower their level by 1
+                p.getInventory().addItem(currency);
+                p.setLevel(p.getLevel() - 1);
+                return;
+            }
+        }
+        if (transactionType.equalsIgnoreCase(cashToXp)) {
+            // check if they have cash in their inventory
+            if (p.getInventory().contains(currency)) {
+                for (ItemStack item : p.getInventory().getContents()) {
+                    if (checkNameAndNumber(item, name, modelDataNumber)) {
+                        // they have currency in their inventory
+                        // remove 1 currency and add 1 level
+                        item.setAmount(item.getAmount()-1);
+                        p.setLevel(p.getLevel() + 1);
+                        return;
+                    }
+                }
+            }
+        }
+        if (transactionType.equalsIgnoreCase(withdraw)) {
+            if (playerBalance > 0) {
+                p.getInventory().addItem(currency);
+                playerBalance--;
+                config.set(path, playerBalance);
+                return;
+            }
+        }
+        if (transactionType.equalsIgnoreCase(deposit)) {
+            if (p.getInventory().contains(currency)) {
+                for (ItemStack item : p.getInventory().getContents()) {
+                    if (checkNameAndNumber(item, name, modelDataNumber)) {
+                        // they have currency in their inventory
+                        item.setAmount(item.getAmount()-1);
+                        playerBalance++;
+                        config.set(path, playerBalance);
+                    }
+                }
+            }
+        }
+        saveConfigFile();
+    }
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -171,6 +269,7 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Registering commands...");
         this.getCommand("exchangeTerminalTwoWayMode").setExecutor(new ConfigCommands(this));
         this.getCommand("assignBanker").setExecutor(new ConfigCommands(this));
+        this.getCommand("universalBankCreation").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
 
     }
@@ -181,6 +280,14 @@ public class Main extends JavaPlugin implements Listener {
         config.set("TellerMachineList", TellerMachineList);
         saveConfigFile();
         getLogger().info("Config has been backed up.");
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        String playerUUIDString = p.getUniqueId().toString();
+
+        config.addDefault(playerUUIDString + ".currentBalance", 0);
     }
 
     public String color(final String string) {

@@ -35,8 +35,39 @@ public class Atm implements Listener {
             e.setLine(0, "* Exp Economy *");
             e.setLine(1, "BANK ATM");
             e.setLine(2, "");
-            e.setLine(3, "Status:"  + atm.getStatus());
+            e.setLine(3, atm.getStatusString());
 
+        }
+    }
+
+    @EventHandler
+    public void onBreakSign(BlockBreakEvent e) {
+        Block block = e.getBlock();
+        main.removeIfTellerMachine(block);
+    }
+
+    @EventHandler
+    public void onRightClickSign(PlayerInteractEvent e) {
+        Block block = e.getClickedBlock();
+        Action action = e.getAction();
+
+        if (block != null) {
+            if (main.isTellerMachine(block)) {
+                TellerMachine tm = main.getTellerMachine(block.getLocation());
+                if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
+                    if (tm.getEnabled()) {
+                        applyAtmUI(e.getPlayer());
+                    } else {
+                        if (main.getBankerUUIDString() != null) {
+                            if (main.getBankerUUIDString().equals(e.getPlayer().getUniqueId().toString())) {
+                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                                tm.setEnabled(true);
+                                main.changeSignText(tm.getBlock(), 3, tm.getStatusString());
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -137,36 +168,5 @@ public class Atm implements Listener {
         player.openInventory(mainAtmGui);
         
 
-    }
-
-    @EventHandler
-    public void onBreakSign(BlockBreakEvent e) {
-        Block block = e.getBlock();
-        main.removeIfTellerMachine(block);
-    }
-
-    @EventHandler
-    public void onRightClickSign(PlayerInteractEvent e) {
-        Block block = e.getClickedBlock();
-        Action action = e.getAction();
-
-        if (block != null) {
-            if (main.isTellerMachine(block)) {
-                TellerMachine tm = main.getTellerMachine(block.getLocation());
-                if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
-                    if (tm.getEnabled()) {
-                        e.getPlayer().sendMessage("teller clicked!");
-                        applyAtmUI(e.getPlayer());
-                    } else {
-                        if (main.getBankerUUIDString() != null) {
-                            if (main.getBankerUUIDString().equals(e.getPlayer().getUniqueId().toString())) {
-                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
-                                tm.setEnabled(true);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

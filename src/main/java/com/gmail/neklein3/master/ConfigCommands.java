@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class ConfigCommands implements CommandExecutor {
 
     Main main;
@@ -17,22 +19,24 @@ public class ConfigCommands implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        // atm toggle mode command
+        // exchange Terminal toggle mode command
         if (command.getName().equalsIgnoreCase("exchangeTerminalTwoWayMode")) {
             // if they sent arguments
             if (args.length > 0) {
-                if (args[0].equals("on")) {
+                if (args[0].equalsIgnoreCase("on")) {
                     Main.config.set("exchangeTerminalTwoWayMode", true);
                     if (sender instanceof Player) {
-                        sender.sendMessage("Enabled ATM Two Way Mode");
+                        sender.sendMessage("Enabled Exchange Terminal Two Way Mode");
                     }
+                    main.getLogger().info("Enabled Exchange Terminal Two Way Mode");
                     Main.saveConfigFile();
                     return true;
-                } else if (args[0].equals("off")) {
+                } else if (args[0].equalsIgnoreCase("off")) {
                     Main.config.set("exchangeTerminalTwoWayMode", false);
                     if (sender instanceof Player) {
-                        sender.sendMessage("Disabled ATM Two Way Mode");
+                        sender.sendMessage("Disabled Exchange Terminal Two Way Mode");
                     }
+                    main.getLogger().info("Disabled Exchange Terminal Two Way Mode");
                     Main.saveConfigFile();
                     return true;
                 }
@@ -46,10 +50,10 @@ public class ConfigCommands implements CommandExecutor {
             if (args.length > 0) {
 
                 // this part removes the banker
-                // for testing purposes
                 if (args[0].equalsIgnoreCase("removeBanker")) {
                     Main.config.set("Banker", null);
                     Main.saveConfigFile();
+                    return true;
                 }
 
 
@@ -72,6 +76,32 @@ public class ConfigCommands implements CommandExecutor {
                 }
             }
         }
+
+        // toggle universal Bank Creation command
+        if (command.getName().equalsIgnoreCase("universalBankCreation")) {
+            if (args.length > 0) {
+                if (args[0].equalsIgnoreCase("on")) {
+                    Main.config.set("universalBankCreation", true);
+                    if (sender instanceof Player) {
+                        sender.sendMessage("Enabled Universal Bank Creation");
+                    }
+                    main.getLogger().info("Enabled Universal Bank Creation");
+                    Main.saveConfigFile();
+                    return true;
+                } else if (args[0].equalsIgnoreCase("off")) {
+                    Main.config.set("universalBankCreation", false);
+                    if (sender instanceof Player) {
+                        sender.sendMessage("Disabled Universal Bank Creation");
+                    }
+                    main.getLogger().info("Disabled Universal Bank Creation");
+                    Main.saveConfigFile();
+                    return true;
+                }
+            }
+        }
+
+
+
         return false;
     }
 }

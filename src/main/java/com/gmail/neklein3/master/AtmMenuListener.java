@@ -29,10 +29,12 @@ public class AtmMenuListener implements Listener {
                 switch (e.getCurrentItem().getType()) {
                     case YELLOW_CONCRETE:
                         player.sendMessage("withdrawal");
+                        main.transaction(main.withdraw, player);
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                         break;
                     case PURPLE_CONCRETE:
                         player.sendMessage("deposit");
+                        main.transaction(main.deposit, player);
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                         break;
                     case RED_CONCRETE:
@@ -48,18 +50,18 @@ public class AtmMenuListener implements Listener {
                                 }
                             }
                             // disables the atm that is closest
-                            for (TellerMachine tellerMachine: main.TellerMachineList) {
+                            for (TellerMachine tellerMachine : main.TellerMachineList) {
                                 if (tellerMachine.getLocation().distance(player.getLocation()) == lowestDistance) {
                                     TellerMachine atm = main.getTellerMachine(tellerMachine.getLocation());
                                     atm.setEnabled(false);
+                                    main.changeSignText(atm.getBlock(), 3, atm.getStatusString());
+                                    Main.saveConfigFile();
                                 }
                             }
                         }
+
                         // exit ui
-                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_OFF, 5, 1);
                         player.closeInventory();
-
-
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 10, 1);
                     default:
                         return;

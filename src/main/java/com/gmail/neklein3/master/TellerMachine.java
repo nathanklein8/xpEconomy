@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
@@ -58,6 +59,11 @@ public class TellerMachine implements ConfigurationSerializable {
         return location;
     }
 
+    // returns the block at the location of the TellerMachine
+    public Block getBlock() {
+        return location.getBlock();
+    }
+
     // .setEnabled sets the boolean status of enabled
     public void setEnabled(Boolean bool) {
         enabled = bool;
@@ -68,11 +74,11 @@ public class TellerMachine implements ConfigurationSerializable {
         return enabled;
     }
 
-    public String getStatus() {
+    public String getStatusString() {
         if (enabled) {
-            return "" + ChatColor.GREEN + "Online!";
+            return "Status: " + ChatColor.GREEN + "Online!";
         } else {
-            return "" + ChatColor.RED + "Offline!";
+            return "Status: " + ChatColor.RED + "Offline!";
         }
     }
 
