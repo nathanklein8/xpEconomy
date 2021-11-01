@@ -9,6 +9,7 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -52,6 +55,8 @@ public class Main extends JavaPlugin implements Listener {
     public void removeIfExchangeTerminal(Block block) {
         if (isSign(block)) {
             ExchangeTerminalList.removeIf(et -> et.getLocation().equals(block.getLocation()));
+            config.set("ExchangeTerminalList", ExchangeTerminalList);
+            saveConfigFile();
         }
     }
 
@@ -113,6 +118,30 @@ public class Main extends JavaPlugin implements Listener {
         return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
     }
 
+    // when calling this method, you HAVE to check if (isBanker(player) != null) first!!!!!!!!!!!!!!!
+    public Boolean isBanker(Player player) {
+        if (getBankerUUIDString() != null) {
+            return player.getUniqueId().toString().equals(getBankerUUIDString());
+        }
+        return null;
+    }
+
+    // before calling, check if null
+    public String getBankerUUIDString() {
+        if (config.get("Banker") != null) {
+            return (String) config.get("Banker");
+        }
+        return null;
+    }
+
+    // before calling, check if null
+    public Boolean getExchangeTerminalTwoWayMode() {
+        if (config.get("exchangeTerminalTwoWayMode") != null) {
+            return (Boolean) config.get("exchangeTerminalTwoWayMode");
+        }
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void onEnable() {
@@ -136,19 +165,22 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new Atm(this), this);
         Bukkit.getPluginManager().registerEvents(new AtmMenuListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BankMenuListener(this), this);
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");
-        this.getCommand("atmTwoWayMode").setExecutor(new ConfigCommands());
+        this.getCommand("exchangeTerminalTwoWayMode").setExecutor(new ConfigCommands(this));
+        this.getCommand("assignBanker").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
-
 
     }
 
     @Override
     public void onDisable() {
+        getLogger().info("Backing up config...");
         config.set("TellerMachineList", TellerMachineList);
         saveConfigFile();
+        getLogger().info("Config has been backed up.");
     }
 
     public String color(final String string) {

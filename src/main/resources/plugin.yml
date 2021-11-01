@@ -4,7 +4,11 @@ author: Nathan Klein
 main: com.gmail.neklein3.master.Main
 api-version: 1.17
 commands:
-  atmTwoWayMode:
+  exchangeTerminalTwoWayMode:
     description: Turns on or off two way conversion on ATMs
-    usage: /atmTwoWayMode <on/off>
+    usage: /exchangeTerminalTwoWayMode <on/off>
+    permission: xpEconomy.admin
+  assignBanker:
+    description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time
+    usage: /assignBanker <player>
     permission: xpEconomy.admin

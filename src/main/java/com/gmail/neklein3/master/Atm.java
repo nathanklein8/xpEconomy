@@ -2,6 +2,7 @@ package com.gmail.neklein3.master;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -89,7 +90,7 @@ public class Atm implements Listener {
         ItemMeta disableButtonItemMeta = disableButtonItem.getItemMeta();
         assert disableButtonItemMeta != null;
         disableButtonItemMeta.setDisplayName(main.color("&4Disable Atm."));
-        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button disables the Atm until it is enabled again.")));
+        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
 
         //Item Settings
@@ -119,7 +120,17 @@ public class Atm implements Listener {
         /*23*/ mainAtmGui.setItem(23, backgroundLightItem);
         /*24*/ mainAtmGui.setItem(24, backgroundDarkItem);
         /*25*/ mainAtmGui.setItem(25, backgroundLightItem);
-        /*26*/ mainAtmGui.setItem(26, backgroundDarkItem);
+
+        /*26*/ // for the bottom right tile (26), check if player is Banker, if so set 26 to disable button
+        if (main.isBanker(player) != null) {
+            if (main.isBanker(player)) {
+                mainAtmGui.setItem(26, disableButtonItem);
+            } else {
+                mainAtmGui.setItem(26, backgroundDarkItem);
+            }
+        } else {
+            mainAtmGui.setItem(26, backgroundDarkItem);
+        }
 
         //Final
         
@@ -146,14 +157,14 @@ public class Atm implements Listener {
                     if (tm.getEnabled()) {
                         e.getPlayer().sendMessage("teller clicked!");
                         applyAtmUI(e.getPlayer());
-                    }
-                } else if (action.equals(Action.LEFT_CLICK_BLOCK)) {
-                    if(tm.getEnabled()) {
-                        e.getPlayer().sendMessage("teller disabled.");
                     } else {
-                        e.getPlayer().sendMessage("teller enabled.");
+                        if (main.getBankerUUIDString() != null) {
+                            if (main.getBankerUUIDString().equals(e.getPlayer().getUniqueId().toString())) {
+                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                                tm.setEnabled(true);
+                            }
+                        }
                     }
-                    tm.setEnabled(!tm.getEnabled());
                 }
             }
         }
