@@ -28,14 +28,10 @@ public class AtmMenuListener implements Listener {
 
                 switch (e.getCurrentItem().getType()) {
                     case YELLOW_CONCRETE:
-                        player.sendMessage("withdrawal");
                         main.transaction(main.withdraw, player);
-                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                         break;
                     case PURPLE_CONCRETE:
-                        player.sendMessage("deposit");
                         main.transaction(main.deposit, player);
-                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                         break;
                     case RED_CONCRETE:
                         player.sendMessage("disable");
@@ -63,6 +59,7 @@ public class AtmMenuListener implements Listener {
                         // exit ui
                         player.closeInventory();
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 10, 1);
+                        break;
                     default:
                         return;
                 }

@@ -1,9 +1,6 @@
 package com.gmail.neklein3.master;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Sign;
 import org.bukkit.block.data.type.WallSign;
@@ -164,11 +161,13 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public Boolean checkNameAndNumber(ItemStack item, String displayName, int customModelData) {
-        if (item.hasItemMeta()) {
-            if (item.getItemMeta().hasDisplayName()) {
-                if (item.getItemMeta().getDisplayName().equals(displayName)) {
-                    if (item.getItemMeta().hasCustomModelData()) {
-                        return item.getItemMeta().getCustomModelData() == customModelData;
+        if (item != null) {
+            if (item.hasItemMeta()) {
+                if (item.getItemMeta().hasDisplayName()) {
+                    if (item.getItemMeta().getDisplayName().equals(displayName)) {
+                        if (item.getItemMeta().hasCustomModelData()) {
+                            return item.getItemMeta().getCustomModelData() == customModelData;
+                        }
                     }
                 }
             }
@@ -184,58 +183,59 @@ public class Main extends JavaPlugin implements Listener {
 
         ItemStack currency = new ItemStack(Material.ACACIA_FENCE, 1);
         ItemMeta currencyMeta = currency.getItemMeta();
-        String name = "Money!";
-        int modelDataNumber = 69;
-        currencyMeta.setDisplayName(name);
+        String moneyName = "Money!";
+        int moneyModelDataNumber = 69;
+        currencyMeta.setDisplayName(moneyName);
+        currencyMeta.setCustomModelData(moneyModelDataNumber);
         currency.setItemMeta(currencyMeta);
 
         String playerUUIDString = p.getUniqueId().toString();
         String path = playerUUIDString + ".currentBalance";
-        assert config.get(path) != null;
-        int playerBalance = (int) config.get(path);
+        int playerBalance = config.getInt(path);
 
-        if (transactionType.equalsIgnoreCase(xpToCash)) {
+        if (transactionType.equals(xpToCash)) {
             if (p.getLevel() >= 1) {
                 // give them money and lower their level by 1
                 p.getInventory().addItem(currency);
                 p.setLevel(p.getLevel() - 1);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PIGLIN_CELEBRATE, 5, 1);
                 return;
+
             }
         }
-        if (transactionType.equalsIgnoreCase(cashToXp)) {
+        if (transactionType.equals(cashToXp)) {
             // check if they have cash in their inventory
-            if (p.getInventory().contains(currency)) {
-                for (ItemStack item : p.getInventory().getContents()) {
-                    if (checkNameAndNumber(item, name, modelDataNumber)) {
-                        // they have currency in their inventory
-                        // remove 1 currency and add 1 level
-                        item.setAmount(item.getAmount()-1);
-                        p.setLevel(p.getLevel() + 1);
-                        return;
-                    }
+            for (ItemStack item : p.getInventory().getContents()) {
+                if (checkNameAndNumber(item, moneyName, moneyModelDataNumber)) {
+                    // they have currency in their inventory
+                    // remove 1 currency and add 1 level
+                    item.setAmount(item.getAmount()-1);
+                    p.setLevel(p.getLevel() + 1);
+                    p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PIGLIN_ADMIRING_ITEM, 5, 1);
+                    return;
                 }
             }
         }
-        if (transactionType.equalsIgnoreCase(withdraw)) {
+        if (transactionType.equals(withdraw)) {
             if (playerBalance > 0) {
                 p.getInventory().addItem(currency);
                 playerBalance--;
                 config.set(path, playerBalance);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                 return;
             }
         }
-        if (transactionType.equalsIgnoreCase(deposit)) {
-            if (p.getInventory().contains(currency)) {
-                for (ItemStack item : p.getInventory().getContents()) {
-                    if (checkNameAndNumber(item, name, modelDataNumber)) {
-                        // they have currency in their inventory
-                        item.setAmount(item.getAmount()-1);
-                        playerBalance++;
-                        config.set(path, playerBalance);
-                    }
+        if (transactionType.equals(deposit)) {
+            for (ItemStack item : p.getInventory().getContents()) {
+                if (checkNameAndNumber(item, moneyName, moneyModelDataNumber)) {
+                    item.setAmount(item.getAmount()-1);
+                    playerBalance++;
+                    config.set(path, playerBalance);
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                 }
             }
         }
+
         saveConfigFile();
     }
 

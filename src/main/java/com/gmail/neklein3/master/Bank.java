@@ -124,13 +124,13 @@ public class Bank implements Listener {
         ItemStack backgroundConvertToXpItem = new ItemStack(Material.LIME_STAINED_GLASS_PANE, 1);
         ItemMeta backgroundConvertToXpItemMeta = backgroundConvertToXpItem.getItemMeta();
         assert backgroundConvertToXpItemMeta != null;
-        backgroundConvertToXpItemMeta.setDisplayName(main.color("&6Withdraw"));
+        backgroundConvertToXpItemMeta.setDisplayName(main.color(""));
         backgroundConvertToXpItem.setItemMeta(backgroundConvertToXpItemMeta);
 
         ItemStack backgroundConvertFromXpItem = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE, 1);
         ItemMeta backgroundConvertFromXpItemMeta = backgroundConvertFromXpItem.getItemMeta();
         assert backgroundConvertFromXpItemMeta != null;
-        backgroundConvertFromXpItemMeta.setDisplayName(main.color("&5Deposit"));
+        backgroundConvertFromXpItemMeta.setDisplayName(main.color(""));
         backgroundConvertFromXpItem.setItemMeta(backgroundConvertFromXpItemMeta);
 
         //admin only
