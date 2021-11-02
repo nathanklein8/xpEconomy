@@ -1,15 +1,11 @@
 package com.gmail.neklein3.master;
 
-import jdk.nashorn.internal.ir.Block;
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 
 public class AtmMenuListener implements Listener {
 
