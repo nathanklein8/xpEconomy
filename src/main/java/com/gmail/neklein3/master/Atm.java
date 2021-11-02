@@ -1,6 +1,7 @@
 package com.gmail.neklein3.master;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -33,8 +34,8 @@ public class Atm implements Listener {
             main.addTellerMachineToList(atm);
 
             e.setLine(0, "* Exp Economy *");
-            e.setLine(1, "BANK ATM");
-            e.setLine(2, "");
+            e.setLine(1, "Bank");
+            e.setLine(2, "Atm");
             e.setLine(3, atm.getStatusString());
 
         }
@@ -43,7 +44,13 @@ public class Atm implements Listener {
     @EventHandler
     public void onBreakSign(BlockBreakEvent e) {
         Block block = e.getBlock();
-        main.removeIfTellerMachine(block);
+        if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
+            e.getPlayer().sendMessage("Bank Atm Destroyed.");
+            main.removeIfTellerMachine(block);
+        } else {
+            e.setCancelled(true);
+            e.getPlayer().sendMessage(ChatColor.RED + "Only the Banker can destroy Bank ATMs.");
+        }
     }
 
     @EventHandler
