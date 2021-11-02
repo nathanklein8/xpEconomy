@@ -1,7 +1,6 @@
 package com.gmail.neklein3.master;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,11 +24,31 @@ public class AtmMenuListener implements Listener {
 
                 switch (e.getCurrentItem().getType()) {
                     case YELLOW_CONCRETE:
-                        player.sendMessage("withdrawal");
+                        main.transaction(main.withdraw, player);
                         break;
                     case PURPLE_CONCRETE:
-                        player.sendMessage("deposit");
+                        main.transaction(main.deposit, player);
                         break;
+                    case RED_CONCRETE:
+                        // gets the distance to the nearest TellerMachine
+                        double lowestDistance = 10.0;
+                        if (!(main.TellerMachineList.isEmpty())) {
+                            for (TellerMachine tm : main.TellerMachineList) {
+                                double distanceFromPlayer = tm.getLocation().distance(player.getLocation());
+                                if (distanceFromPlayer < lowestDistance) {
+                                    lowestDistance = distanceFromPlayer;
+                                }
+                            }
+                            // disables the atm that is closest
+                            for (TellerMachine tellerMachine : main.TellerMachineList) {
+                                if (tellerMachine.getLocation().distance(player.getLocation()) == lowestDistance) {
+                                    TellerMachine atm = main.getTellerMachine(tellerMachine.getLocation());
+                                    atm.setEnabled(false);
+                                    main.changeSignText(atm.getBlock(), 3, atm.getStatusString());
+                                    Main.saveConfigFile();
+                                }
+                            }
+                        }
                     default:
                         return;
 
