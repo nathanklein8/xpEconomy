@@ -75,7 +75,7 @@ public class Atm implements Listener {
     public void applyAtmUI(Player player) {
 
         //Beginning
-        Inventory mainAtmGui = Bukkit.createInventory(null, 27, main.color("&8Bank ATM"));
+        Inventory mainAtmGui = Bukkit.createInventory(null, 27, main.color("&7Bank ATM"));
 
         //ItemStacks
         ItemStack withdrawXpItem = new ItemStack(Material.YELLOW_CONCRETE, 1);
