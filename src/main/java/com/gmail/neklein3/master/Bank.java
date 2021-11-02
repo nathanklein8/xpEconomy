@@ -1,6 +1,7 @@
 package com.gmail.neklein3.master;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -141,6 +142,12 @@ public class Bank implements Listener {
         disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
 
+        ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_CONCRETE, 1);
+        ItemMeta currentMoneyInBankItemMeta = currentMoneyInBankItem.getItemMeta();
+        currentMoneyInBankItemMeta.setDisplayName(ChatColor.DARK_BLUE + "Money across all bank accounts");
+        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + Main.config.getInt("totalInCirculation")));
+        currentMoneyInBankItem.setItemMeta(currentMoneyInBankItemMeta);
+
         //Item Settings
         /*0*/ mainBankGui.setItem(0, backgroundDarkItem);
         /*1*/ mainBankGui.setItem(1, backgroundLightItem);
@@ -179,7 +186,18 @@ public class Bank implements Listener {
         }
 
         /*17*/ mainBankGui.setItem(17, backgroundLightItem);
-        /*18*/ mainBankGui.setItem(18, backgroundDarkItem);
+
+        /*18*/
+        if (main.isBanker(player) != null) {
+            if (main.isBanker(player)) {
+                mainBankGui.setItem(18, currentMoneyInBankItem);
+            } else {
+                mainBankGui.setItem(18, backgroundDarkItem);
+            }
+        } else {
+            mainBankGui.setItem(18, backgroundDarkItem);
+        }
+
         /*19*/ mainBankGui.setItem(19, backgroundLightItem);
         /*20*/ mainBankGui.setItem(20, backgroundDarkItem);
         /*21*/ mainBankGui.setItem(21, backgroundLightItem);

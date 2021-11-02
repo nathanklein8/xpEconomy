@@ -175,6 +175,26 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
+    public int getCurrentBalance(Player player) {
+        String uuid = player.getUniqueId().toString();
+        String path = "bankAccounts." + uuid + ".currentBalance";
+        return config.getInt(path);
+    }
+
+    public int getTotalBalance() {
+        return config.getInt("totalInCirculation");
+    }
+
+    public void increaseTotalBalance() {
+        config.set("totalInCirculation", getTotalBalance()+1);
+        saveConfigFile();
+    }
+
+    public void decreaseTotalBalance() {
+        config.set("totalInCirculation", getTotalBalance()-1);
+        saveConfigFile();
+    }
+
     public String withdraw = "withdraw";
     public String deposit = "deposit";
     public String xpToCash = "xpToCash";
@@ -190,7 +210,7 @@ public class Main extends JavaPlugin implements Listener {
         currency.setItemMeta(currencyMeta);
 
         String playerUUIDString = p.getUniqueId().toString();
-        String path = playerUUIDString + ".currentBalance";
+        String path = "bankAccounts." + playerUUIDString + ".currentBalance";
         int playerBalance = config.getInt(path);
 
         if (transactionType.equals(xpToCash)) {
@@ -221,6 +241,7 @@ public class Main extends JavaPlugin implements Listener {
                 p.getInventory().addItem(currency);
                 playerBalance--;
                 config.set(path, playerBalance);
+                decreaseTotalBalance();
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                 return;
             }
@@ -231,6 +252,7 @@ public class Main extends JavaPlugin implements Listener {
                     item.setAmount(item.getAmount()-1);
                     playerBalance++;
                     config.set(path, playerBalance);
+                    increaseTotalBalance();
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                 }
             }
@@ -288,6 +310,7 @@ public class Main extends JavaPlugin implements Listener {
         String playerUUIDString = p.getUniqueId().toString();
 
         config.addDefault(playerUUIDString + ".currentBalance", 0);
+        config.addDefault("totalInCirculation", 0);
     }
 
     public String color(final String string) {
