@@ -128,7 +128,7 @@ public class Main extends JavaPlugin implements Listener {
         return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
     }
 
-    // when calling this method, you HAVE to check if (isBanker(player) != null) first!!!!!!!!!!!!!!!
+    // before calling, check if null
     public Boolean isBanker(Player player) {
         if (getBankerUUIDString() != null) {
             return player.getUniqueId().toString().equals(getBankerUUIDString());
