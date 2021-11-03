@@ -302,11 +302,6 @@ public class Main extends JavaPlugin implements Listener {
 
         getLogger().info("Registering commands...");
         this.getCommand("assignBanker").setExecutor(new ConfigCommands(this));
-        this.getCommand("exchangeTerminalTwoWayMode").setExecutor(new ConfigCommands(this));
-        this.getCommand("universalExchangeTerminalCreation").setExecutor(new ConfigCommands(this));
-        this.getCommand("universalExchangeTerminalDestruction").setExecutor(new ConfigCommands(this));
-        this.getCommand("universalATMCreation").setExecutor(new ConfigCommands(this));
-        this.getCommand("universalATMDestruction").setExecutor(new ConfigCommands(this));
         this.getCommand("xpEconomySettings").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
 

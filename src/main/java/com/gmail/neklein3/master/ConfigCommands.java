@@ -1,5 +1,6 @@
 package com.gmail.neklein3.master;
 
+import com.sun.org.apache.xerces.internal.impl.io.UCSReader;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,8 +17,28 @@ public class ConfigCommands implements CommandExecutor {
         this.main = m;
     }
 
+    public void setting(String settingPath, String arg) {
+        if (arg.equalsIgnoreCase("on")) {
+            Main.config.set(settingPath, true);
+        } else if (arg.equalsIgnoreCase("off")) {
+            Main.config.set(settingPath, false);
+        }
+        Main.saveConfigFile();
+    }
+
+    public void message(CommandSender sender, String arg, String message) {
+        if (arg.equalsIgnoreCase("on")) {
+            sender.sendMessage(message + " is now " + ChatColor.GREEN + arg.toUpperCase());
+        }
+        if (arg.equalsIgnoreCase("off")) {
+            sender.sendMessage(message + ChatColor.RED + arg.toUpperCase());
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+
 
         // assign banker command
         if (command.getName().equalsIgnoreCase("assignBanker")) {
@@ -29,11 +50,11 @@ public class ConfigCommands implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("clear")) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         if (p.getUniqueId().toString().equals(main.getBankerUUIDString())) {
-                            p.sendMessage(ChatColor.RED + "The Banker role has been cleared,");
                             p.sendMessage(ChatColor.RED + "You are no longer the Banker");
                         }
                     }
                     Main.config.set("Banker", null);
+                    sender.sendMessage(ChatColor.RED + "The Banker role has been cleared,");
                     Main.saveConfigFile();
                     return true;
 
@@ -62,189 +83,80 @@ public class ConfigCommands implements CommandExecutor {
 
         // display the current toggle settings
         if (command.getName().equalsIgnoreCase("xpEconomySettings")) {
-            if (sender instanceof Player) {
-                Player p = (Player) sender;
+            //player sent no args
+            if (args.length == 0) {
+                sender.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "==================================");
+                sender.sendMessage(ChatColor.GRAY + "Current " + ChatColor.DARK_PURPLE + "Xp" + ChatColor.LIGHT_PURPLE + "Economy" + ChatColor.GRAY + " Plugin Settings:");
                 if (main.getUniversalATMCreation() != null) {
                     if (main.getUniversalATMCreation()) {
-                        p.sendMessage("Universal ATM Creation: " + ChatColor.GREEN + "ON");
+                        sender.sendMessage("Universal ATM Creation: " + ChatColor.GREEN + "ON");
                     } else {
-                        p.sendMessage("Universal ATM Creation: " + ChatColor.RED + "OFF");
+                        sender.sendMessage("Universal ATM Creation: " + ChatColor.RED + "OFF");
                     }
                 } else {
-                    p.sendMessage("Universal ATM Creation: " + ChatColor.LIGHT_PURPLE + "not set");
+                    sender.sendMessage("Universal ATM Creation: " + ChatColor.LIGHT_PURPLE + "not set");
                 }
-
                 if (main.getUniversalATMDestruction() != null) {
                     if (main.getUniversalATMDestruction()) {
-                        p.sendMessage("Universal ATM Destruction: " + ChatColor.GREEN + "ON");
+                        sender.sendMessage("Universal ATM Destruction: " + ChatColor.GREEN + "ON");
                     } else {
-                        p.sendMessage("Universal ATM Destruction: " + ChatColor.RED + "OFF");
+                        sender.sendMessage("Universal ATM Destruction: " + ChatColor.RED + "OFF");
                     }
                 } else {
-                    p.sendMessage("Universal ATM Destruction: " + ChatColor.LIGHT_PURPLE + "not set");
+                    sender.sendMessage("Universal ATM Destruction: " + ChatColor.LIGHT_PURPLE + "not set");
                 }
-
                 if (main.getUniversalExchangeTerminalCreation() != null) {
                     if (main.getUniversalExchangeTerminalCreation()) {
-                        p.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.GREEN + "ON");
+                        sender.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.GREEN + "ON");
                     } else {
-                        p.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.RED + "OFF");
+                        sender.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.RED + "OFF");
                     }
                 } else {
-                    p.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.LIGHT_PURPLE + "not set");
+                    sender.sendMessage("Universal Exchange Terminal Creation: " + ChatColor.LIGHT_PURPLE + "not set");
                 }
-
                 if (main.getUniversalExchangeTerminalDestruction() != null) {
                     if (main.getUniversalExchangeTerminalDestruction()) {
-                        p.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.GREEN + "ON");
+                        sender.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.GREEN + "ON");
                     } else {
-                        p.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.RED + "OFF");
+                        sender.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.RED + "OFF");
                     }
                 } else {
-                    p.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.LIGHT_PURPLE + "not set");
+                    sender.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.LIGHT_PURPLE + "not set");
                 }
+                sender.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "==================================");
+                return true;
 
-            } else {
-                if (main.getUniversalATMCreation() != null) {
-                    main.getLogger().info("Universal ATM Creation: " + main.getUniversalATMCreation().toString());
-                } else {
-                    main.getLogger().info("Universal ATM Creation: not set");
-                }
-                if (main.getUniversalATMDestruction() != null) {
-                    main.getLogger().info("Universal ATM Destruction: " + main.getUniversalATMDestruction().toString());
-                } else {
-                    main.getLogger().info("Universal ATM Destruction: not set");
-                }
-                if (main.getUniversalExchangeTerminalCreation() != null) {
-                    main.getLogger().info("Universal Exchange Terminal Creation: " + main.getUniversalExchangeTerminalCreation().toString());
-                } else {
-                    main.getLogger().info("Universal Exchange Terminal Creation: not set");
-                }
-                if (main.getUniversalExchangeTerminalDestruction() != null) {
-                    main.getLogger().info("Universal Exchange Terminal Destruction: " + main.getUniversalExchangeTerminalDestruction().toString());
-                } else {
-                    main.getLogger().info("Universal Exchange Terminal Destruction: not set");
-                }
-            }
-            return true;
-        }
-
-        // exchange Terminal toggle mode command
-        if (command.getName().equalsIgnoreCase("exchangeTerminalTwoWayMode")) {
-            // if they sent arguments
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("on")) {
-                    Main.config.set("exchangeTerminalTwoWayMode", true);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Enabled Exchange Terminal Two Way Mode");
+            } else if (args.length >= 3) {
+                    if (args[0].equalsIgnoreCase("ExchangeTerminal")) {
+                        if (args[1].equalsIgnoreCase("creation")) {
+                            setting("universalExchangeTerminalCreation", args[2]);
+                            message(sender, args[2], "Universal Exchange Terminal Creation");
+                            return true;
+                        }
+                        if (args[1].equalsIgnoreCase("destruction")) {
+                            setting("universalExchangeTerminalDestruction", args[2]);
+                            message(sender, args[2], "Universal Exchange Terminal Destruction");
+                            return true;
+                        }
+                        if (args[1].equalsIgnoreCase("twoWayMode")) {
+                            setting("exchangeTerminalTwoWayMode", args[2]);
+                            message(sender, args[2], "Exchange Terminal two way mode");
+                        }
                     }
-                    main.getLogger().info("Enabled Exchange Terminal Two Way Mode");
-                    Main.saveConfigFile();
-                    return true;
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    Main.config.set("exchangeTerminalTwoWayMode", false);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Disabled Exchange Terminal Two Way Mode");
+                    if (args[0].equalsIgnoreCase("ATM")) {
+                        if (args[1].equalsIgnoreCase("creation")) {
+                            setting("universalATMCreation", args[2]);
+                            message(sender, args[2], "Universal ATM Creation");
+                            return true;
+                        }
+                        if (args[1].equalsIgnoreCase("destruction")) {
+                            setting("universalATMDestruction", args[2]);
+                            message(sender, args[2], "Universal ATM Destruction");
+                            return true;
+                        }
                     }
-                    main.getLogger().info("Disabled Exchange Terminal Two Way Mode");
-                    Main.saveConfigFile();
-                    return true;
-                }
             }
         }
-
-        // toggle universal exchange terminal creation
-        if (command.getName().equalsIgnoreCase("universalExchangeTerminalCreation")) {
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("on")) {
-                    Main.config.set("universalExchangeTerminalCreation", true);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Enabled Universal Exchange Terminal Creation");
-                    }
-                    main.getLogger().info("Enabled Universal Exchange Terminal Creation");
-                    Main.saveConfigFile();
-                    return true;
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    Main.config.set("universalExchangeTerminalCreation", false);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Disabled Universal Exchange Terminal Creation");
-                    }
-                    main.getLogger().info("Disabled Universal Exchange Terminal Creation");
-                    Main.saveConfigFile();
-                    return true;
-                }
-            }
-        }
-
-        // toggle universal exchange terminal mining
-        if (command.getName().equalsIgnoreCase("universalExchangeTerminalDestruction")) {
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("on")) {
-                    Main.config.set("universalExchangeTerminalDestruction", true);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Enabled Universal Exchange Terminal Destruction");
-                    }
-                    main.getLogger().info("Enabled Universal Exchange Terminal Destruction");
-                    Main.saveConfigFile();
-                    return true;
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    Main.config.set("universalExchangeTerminalDestruction", false);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Disabled Universal Exchange Terminal Destruction");
-                    }
-                    main.getLogger().info("Disabled Universal Exchange Terminal Destruction");
-                    Main.saveConfigFile();
-                    return true;
-                }
-            }
-        }
-
-        // toggle universal atm creation
-        if (command.getName().equalsIgnoreCase("universalATMCreation")) {
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("on")) {
-                    Main.config.set("universalATMCreation", true);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Enabled Universal ATM Creation");
-                    }
-                    main.getLogger().info("Enabled Universal ATM Creation");
-                    Main.saveConfigFile();
-                    return true;
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    Main.config.set("universalATMCreation", false);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Disabled Universal ATM Creation");
-                    }
-                    main.getLogger().info("Disabled Universal ATM Creation");
-                    Main.saveConfigFile();
-                    return true;
-                }
-            }
-        }
-
-        // toggle universal atm mining
-        if (command.getName().equalsIgnoreCase("universalATMDestruction")) {
-            if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("on")) {
-                    Main.config.set("universalATMDestruction", true);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Enabled Universal ATM Destruction");
-                    }
-                    main.getLogger().info("Enabled Universal ATM Destruction");
-                    Main.saveConfigFile();
-                    return true;
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    Main.config.set("universalATMDestruction", false);
-                    if (sender instanceof Player) {
-                        sender.sendMessage("Disabled Universal ATM Destruction");
-                    }
-                    main.getLogger().info("Disabled Universal ATM Destruction");
-                    Main.saveConfigFile();
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 }

@@ -4,31 +4,11 @@ author: Nathan Klein Cole Wombwell
 main: com.gmail.neklein3.master.Main
 api-version: 1.17
 commands:
-  exchangeTerminalTwoWayMode:
-    description: Turns on or off two way conversion on ATMs
-    usage: /exchangeTerminalTwoWayMode <on/off>
-    permission: xpEconomy.admin
   assignBanker:
     description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time.  To clear the role of Banker, type /assignBanker clear
     usage: /assignBanker <player>
-    permission: xpEconomy.admin
-  universalExchangeTerminalCreation:
-    description: When on, all players can place Exchange Terminals. The Banker always has this ability.
-    usage: /universalExchangeTerminalCreation <on/off>
-    permission: xpEconomy.admin
-  universalExchangeTerminalDestruction:
-    description: When on, all players can mine Exchange Terminals. The Banker always has this ability.
-    usage: /universalExchangeTerminalDestruction <on/off>
-    permission: xpEconomy.admin
-  universalATMCreation:
-    description: When on, all players can place ATMs. The Banker always has this ability.
-    usage: /universalATMCreation <on/off>
-    permission: xpEconomy.admin
-  universalATMDestruction:
-    description: When on, all players can mine ATMs. The Banker always has this ability
-    usage: /universalATMDestruction <on/off>
-    permission: xpEconomy.admin
+    permission: xpEconomy.assignBanker
   xpEconomySettings:
-    description: Displays the current Settings for ATM and Exchange Terminal Creation and Destruction
-    usage: /xpEconomySettings
-    permission: xpEconomy.admin
+    description: Enter no arguments to display current settings
+    usage: /xpEconomySettings <exchangeTerminal/ATM> <twoWayMode/creation/destruction> <on/off>
+    permission: xpEconomy.settings
