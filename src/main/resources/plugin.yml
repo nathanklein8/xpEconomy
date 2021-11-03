@@ -9,8 +9,26 @@ commands:
     usage: /exchangeTerminalTwoWayMode <on/off>
     permission: xpEconomy.admin
   assignBanker:
-    description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time.  To clear the role of Banker, type /assignBanker removeBanker
+    description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time.  To clear the role of Banker, type /assignBanker clear
     usage: /assignBanker <player>
     permission: xpEconomy.admin
-  universalBankCreation:
-    description: Toggles whether or not to allow all players to create ExchangeTerminals.  The Banker always has the ability to make Exchange Terminals.
+  universalExchangeTerminalCreation:
+    description: When on, all players can place Exchange Terminals. The Banker always has this ability.
+    usage: /universalExchangeTerminalCreation <on/off>
+    permission: xpEconomy.admin
+  universalExchangeTerminalDestruction:
+    description: When on, all players can mine Exchange Terminals. The Banker always has this ability.
+    usage: /universalExchangeTerminalDestruction <on/off>
+    permission: xpEconomy.admin
+  universalATMCreation:
+    description: When on, all players can place ATMs. The Banker always has this ability.
+    usage: /universalATMCreation <on/off>
+    permission: xpEconomy.admin
+  universalATMDestruction:
+    description: When on, all players can mine ATMs. The Banker always has this ability
+    usage: /universalATMDestruction <on/off>
+    permission: xpEconomy.admin
+  xpEconomySettings:
+    description: Displays the current Settings for ATM and Exchange Terminal Creation and Destruction
+    usage: /xpEconomySettings
+    permission: xpEconomy.admin

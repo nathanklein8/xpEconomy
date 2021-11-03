@@ -153,20 +153,43 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     // before calling, check if null
-    public Boolean getUniversalBankCreation() {
-        if (config.get("universalBankCreation") != null) {
-            return (Boolean) config.get("universalBankCreation");
+    public Boolean getUniversalExchangeTerminalCreation() {
+        if (config.get("universalExchangeTerminalCreation") != null) {
+            return (Boolean) config.get("universalExchangeTerminalCreation");
         }
         return null;
     }
 
-    public Boolean checkNameAndNumber(ItemStack item, String displayName, int customModelData) {
+    public Boolean getUniversalExchangeTerminalDestruction() {
+        if (config.get("universalExchangeTerminalDestruction") != null) {
+            return (Boolean) config.get("universalExchangeTerminalDestruction");
+        }
+        return null;
+    }
+
+    public Boolean getUniversalATMCreation() {
+        if (config.get("universalATMCreation") != null) {
+            return (Boolean) config.get("universalATMCreation");
+        }
+        return null;
+    }
+
+    public Boolean getUniversalATMDestruction() {
+        if (config.get("universalATMDestruction") != null) {
+            return (Boolean) config.get("universalATMDestruction");
+        }
+        return null;
+    }
+
+    public Boolean checkMaterialNameNumber(ItemStack item, Material material, String displayName, int customModelData) {
         if (item != null) {
-            if (item.hasItemMeta()) {
-                if (item.getItemMeta().hasDisplayName()) {
-                    if (item.getItemMeta().getDisplayName().equals(displayName)) {
-                        if (item.getItemMeta().hasCustomModelData()) {
-                            return item.getItemMeta().getCustomModelData() == customModelData;
+            if (item.getType().equals(material)) {
+                if (item.hasItemMeta()) {
+                    if (item.getItemMeta().hasDisplayName()) {
+                        if (item.getItemMeta().getDisplayName().equals(displayName)) {
+                            if (item.getItemMeta().hasCustomModelData()) {
+                                return item.getItemMeta().getCustomModelData() == customModelData;
+                            }
                         }
                     }
                 }
@@ -175,31 +198,21 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
-    public int getCurrentBalance(Player player) {
-        String uuid = player.getUniqueId().toString();
-        String path = "bankAccounts." + uuid + ".currentBalance";
-        return config.getInt(path);
-    }
-
     public int getTotalBalance() {
-        return config.getInt("totalInCirculation");
+        return config.getInt("totalBalance");
     }
 
     public void increaseTotalBalance() {
-        config.set("totalInCirculation", getTotalBalance()+1);
+        config.set("totalBalance", getTotalBalance()+1);
         saveConfigFile();
     }
 
     public void decreaseTotalBalance() {
-        config.set("totalInCirculation", getTotalBalance()-1);
+        config.set("totalBalance", getTotalBalance()-1);
         saveConfigFile();
     }
 
-    public String withdraw = "withdraw";
-    public String deposit = "deposit";
-    public String xpToCash = "xpToCash";
-    public String cashToXp = "cashToXp";
-    public void transaction(String transactionType, Player p) {
+    public void transaction(TransactionType type, Player p) {
 
         ItemStack currency = new ItemStack(Material.ACACIA_FENCE, 1);
         ItemMeta currencyMeta = currency.getItemMeta();
@@ -213,7 +226,7 @@ public class Main extends JavaPlugin implements Listener {
         String path = "bankAccounts." + playerUUIDString + ".currentBalance";
         int playerBalance = config.getInt(path);
 
-        if (transactionType.equals(xpToCash)) {
+        if (type == TransactionType.XPTOCASH) {
             if (p.getLevel() >= 1) {
                 // give them money and lower their level by 1
                 p.getInventory().addItem(currency);
@@ -222,11 +235,10 @@ public class Main extends JavaPlugin implements Listener {
                 return;
 
             }
-        }
-        if (transactionType.equals(cashToXp)) {
+        } else if (type == TransactionType.CASHTOXP) {
             // check if they have cash in their inventory
             for (ItemStack item : p.getInventory().getContents()) {
-                if (checkNameAndNumber(item, moneyName, moneyModelDataNumber)) {
+                if (checkMaterialNameNumber(item, Material.ACACIA_FENCE, moneyName, moneyModelDataNumber)) {
                     // they have currency in their inventory
                     // remove 1 currency and add 1 level
                     item.setAmount(item.getAmount()-1);
@@ -235,32 +247,30 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
             }
-        }
-        if (transactionType.equals(withdraw)) {
+        } else if (type == TransactionType.WITHDRAW) {
             if (playerBalance > 0) {
                 p.getInventory().addItem(currency);
                 playerBalance--;
                 config.set(path, playerBalance);
+                saveConfigFile();
                 decreaseTotalBalance();
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                 return;
             }
-        }
-        if (transactionType.equals(deposit)) {
+        } else if (type == TransactionType.DEPOSIT) {
             for (ItemStack item : p.getInventory().getContents()) {
-                if (checkNameAndNumber(item, moneyName, moneyModelDataNumber)) {
+                if (checkMaterialNameNumber(item, Material.ACACIA_FENCE, moneyName, moneyModelDataNumber)) {
                     item.setAmount(item.getAmount()-1);
                     playerBalance++;
                     config.set(path, playerBalance);
+                    saveConfigFile();
                     increaseTotalBalance();
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                 }
             }
         }
-
         saveConfigFile();
     }
-
 
     @SuppressWarnings("unchecked")
     @Override
@@ -278,6 +288,8 @@ public class Main extends JavaPlugin implements Listener {
         if (config.get("ExchangeTerminalList") != null) {
             ExchangeTerminalList = (List<ExchangeTerminal>) config.get("ExchangeTerminalList");
         }
+        config.addDefault("totalBalance", 0);
+        saveConfigFile();
         getLogger().info("Config loaded.");
 
         getLogger().info("Registering events...");
@@ -289,9 +301,13 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");
-        this.getCommand("exchangeTerminalTwoWayMode").setExecutor(new ConfigCommands(this));
         this.getCommand("assignBanker").setExecutor(new ConfigCommands(this));
-        this.getCommand("universalBankCreation").setExecutor(new ConfigCommands(this));
+        this.getCommand("exchangeTerminalTwoWayMode").setExecutor(new ConfigCommands(this));
+        this.getCommand("universalExchangeTerminalCreation").setExecutor(new ConfigCommands(this));
+        this.getCommand("universalExchangeTerminalDestruction").setExecutor(new ConfigCommands(this));
+        this.getCommand("universalATMCreation").setExecutor(new ConfigCommands(this));
+        this.getCommand("universalATMDestruction").setExecutor(new ConfigCommands(this));
+        this.getCommand("xpEconomySettings").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
 
     }
@@ -310,7 +326,6 @@ public class Main extends JavaPlugin implements Listener {
         String playerUUIDString = p.getUniqueId().toString();
 
         config.addDefault(playerUUIDString + ".currentBalance", 0);
-        config.addDefault("totalInCirculation", 0);
     }
 
     public String color(final String string) {

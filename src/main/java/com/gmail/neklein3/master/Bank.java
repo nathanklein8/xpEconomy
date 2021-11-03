@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -25,6 +26,20 @@ public class Bank implements Listener {
         this.main = m;
     }
 
+    public void placeNewTerminal(Event e, Block block) {
+        if (e instanceof SignChangeEvent) {
+            SignChangeEvent event = (SignChangeEvent) e;
+            ExchangeTerminal et = new ExchangeTerminal(block.getLocation());
+            et.setEnabled(true);
+            main.addExchangeTerminalToList(et);
+
+            event.setLine(0, "* Exp Economy *");
+            event.setLine(1, "Exchange");
+            event.setLine(2, "Terminal");
+            event.setLine(3, et.getStatusString());
+        }
+    }
+
     //bank sign creation.
     @EventHandler
     public void onSignWrite(SignChangeEvent e) {
@@ -32,29 +47,17 @@ public class Bank implements Listener {
         if(e.getLine(0) != null && e.getLine(0).equals("[bank]")) {
             // only allows bankers to make the sign
 
-            if (main.getUniversalBankCreation() != null) {
-                if (main.getUniversalBankCreation()) {
+            if (main.getUniversalExchangeTerminalCreation() != null) {
+                if (main.getUniversalExchangeTerminalCreation()) {
                     //logs the sign location in atmLocations in the config
-                    ExchangeTerminal et = new ExchangeTerminal(block.getLocation());
-                    main.addExchangeTerminalToList(et);
-
-                    e.setLine(0, "* Exp Economy *");
-                    e.setLine(1, "Exchange");
-                    e.setLine(2, "Terminal");
-                    e.setLine(3, et.getStatusString());
+                    placeNewTerminal(e, block);
                     return;
                 }
             }
             if (main.getBankerUUIDString() != null) {
                 if (main.getBankerUUIDString().equals(e.getPlayer().getUniqueId().toString())) {
                     //logs the sign location in atmLocations in the config
-                    ExchangeTerminal et = new ExchangeTerminal(block.getLocation());
-                    main.addExchangeTerminalToList(et);
-
-                    e.setLine(0, "* Exp Economy *");
-                    e.setLine(1, "Exchange");
-                    e.setLine(2, "Terminal");
-                    e.setLine(3, et.getStatusString());
+                    placeNewTerminal(e, block);
                 }
             }
         }
@@ -63,7 +66,24 @@ public class Bank implements Listener {
     @EventHandler
     public void onBreakSign(BlockBreakEvent e) {
         Block block = e.getBlock();
-        main.removeIfExchangeTerminal(block);
+
+        if (main.isExchangeTerminal(block)) {
+            if (main.getUniversalExchangeTerminalDestruction() != null) {
+                if (main.getUniversalExchangeTerminalDestruction()) {
+                    main.removeIfExchangeTerminal(block);
+                    return;
+                }
+            }
+            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
+                // if the player is a banker
+                e.getPlayer().sendMessage("Exchange Terminal Destroyed.");
+                main.removeIfExchangeTerminal(block);
+            } else {
+                // if universal is off and player is not a banker
+                e.setCancelled(true);
+                e.getPlayer().sendMessage(ChatColor.RED + "Only the Banker can destroy Exchange Terminals.");
+            }
+        }
     }
 
     @EventHandler
@@ -145,7 +165,7 @@ public class Bank implements Listener {
         ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_CONCRETE, 1);
         ItemMeta currentMoneyInBankItemMeta = currentMoneyInBankItem.getItemMeta();
         currentMoneyInBankItemMeta.setDisplayName(ChatColor.DARK_BLUE + "Money across all bank accounts");
-        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + Main.config.getInt("totalInCirculation")));
+        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + Main.config.getInt("totalBalance")));
         currentMoneyInBankItem.setItemMeta(currentMoneyInBankItemMeta);
 
         //Item Settings

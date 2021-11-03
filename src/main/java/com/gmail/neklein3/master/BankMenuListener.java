@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 
 public class BankMenuListener implements Listener {
 
@@ -24,10 +25,10 @@ public class BankMenuListener implements Listener {
 
                 switch (e.getCurrentItem().getType()) {
                     case LIME_CONCRETE:
-                        main.transaction(main.cashToXp, player);
+                        main.transaction(TransactionType.CASHTOXP, player);
                         break;
                     case MAGENTA_CONCRETE:
-                        main.transaction(main.xpToCash, player);
+                        main.transaction(TransactionType.XPTOCASH, player);
                         break;
                     case RED_CONCRETE:
                         // gets the distance to the nearest TellerMachine

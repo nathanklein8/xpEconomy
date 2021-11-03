@@ -1,6 +1,7 @@
 package com.gmail.neklein3.master;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,37 +25,38 @@ public class AtmMenuListener implements Listener {
 
                 switch (e.getCurrentItem().getType()) {
                     case YELLOW_CONCRETE:
-                        player.sendMessage("withdrawal");
+                        main.transaction(TransactionType.WITHDRAW, player);
                         break;
                     case PURPLE_CONCRETE:
-                        player.sendMessage("deposit");
+                        main.transaction(TransactionType.DEPOSIT, player);
                         break;
-                    default:
-                        return;
+                    case RED_CONCRETE:
+                        // gets the distance to the nearest TellerMachine
+                        double lowestDistance = 10.0;
+                        if (!(main.TellerMachineList.isEmpty())) {
+                            for (TellerMachine tm : main.TellerMachineList) {
+                                double distanceFromPlayer = tm.getLocation().distance(player.getLocation());
+                                if (distanceFromPlayer < lowestDistance) {
+                                    lowestDistance = distanceFromPlayer;
+                                }
+                            }
+                            // disables the atm that is closest
+                            for (TellerMachine tellerMachine : main.TellerMachineList) {
+                                if (tellerMachine.getLocation().distance(player.getLocation()) == lowestDistance) {
+                                    TellerMachine atm = main.getTellerMachine(tellerMachine.getLocation());
+                                    atm.setEnabled(false);
+                                    main.changeSignText(atm.getBlock(), 3, atm.getStatusString());
+                                    Main.saveConfigFile();
+                                    break;
+                                }
+                            }
+                        }
 
-                }
-            }
-        } else if (ChatColor.translateAlternateColorCodes('&', e.getView().getTitle()).equals(ChatColor.GRAY + "Bank ATM Sub-Menu")) {
-            if (e.getCurrentItem() != null) {
-                e.setCancelled(true);
-
-                switch (e.getCurrentItem().getType()) {
-                    case YELLOW_CONCRETE:
-                        player.sendMessage("withdrawal of cash");
-                        //withdraw cash
+                        // exit ui
                         player.closeInventory();
-                        break;
-                    case PURPLE_CONCRETE:
-                        player.sendMessage("deposit of cash");
-                        //deposit cash
-                        player.closeInventory();
-                        break;
-                    default:
-                        return;
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 10, 1);
                 }
             }
         }
     }
-
-
 }

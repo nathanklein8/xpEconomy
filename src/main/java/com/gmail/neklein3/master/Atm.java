@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -23,33 +24,62 @@ public class Atm implements Listener {
     Main main;
     Atm(Main main) { this.main = main; }
 
+    public void placeNewAtm(Event e, Block block) {
+        if (e instanceof SignChangeEvent) {
+            SignChangeEvent event = (SignChangeEvent) e;
+            TellerMachine atm = new TellerMachine(block.getLocation());
+            atm.setEnabled(true);
+            main.addTellerMachineToList(atm);
+
+            event.setLine(0, "* Exp Economy *");
+            event.setLine(1, "Bank");
+            event.setLine(2, "Atm");
+            event.setLine(3, atm.getStatusString());
+        }
+    }
+
     //atm creation.
     @EventHandler
     public void onSignWrite(SignChangeEvent e) {
         Block block = e.getBlock();
         if(e.getLine(0) != null && e.getLine(0).equals("[atm]")) {
-            //logs the sign location in atmLocations in the config
-            TellerMachine atm = new TellerMachine(block.getLocation());
-            atm.setEnabled(true);
-            main.addTellerMachineToList(atm);
 
-            e.setLine(0, "* Exp Economy *");
-            e.setLine(1, "Bank");
-            e.setLine(2, "Atm");
-            e.setLine(3, atm.getStatusString());
-
+            if (main.getUniversalATMCreation() != null) {
+                if (main.getUniversalATMCreation()) {
+                    //logs the sign location in atmLocations in the config
+                    placeNewAtm(e, block);
+                    return;
+                }
+            }
+            if (main.getBankerUUIDString() != null) {
+                if (main.getBankerUUIDString().equals(e.getPlayer().getUniqueId().toString())) {
+                    //logs the sign location in atmLocations in the config
+                    placeNewAtm(e, block);
+                }
+            }
         }
     }
 
     @EventHandler
     public void onBreakSign(BlockBreakEvent e) {
         Block block = e.getBlock();
-        if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
-            e.getPlayer().sendMessage("Bank Atm Destroyed.");
-            main.removeIfTellerMachine(block);
-        } else {
-            e.setCancelled(true);
-            e.getPlayer().sendMessage(ChatColor.RED + "Only the Banker can destroy Bank ATMs.");
+
+        if (main.isTellerMachine(block)) {
+            if (main.getUniversalATMDestruction() != null) {
+                if (main.getUniversalATMDestruction()) {
+                    main.removeIfTellerMachine(block);
+                    return;
+                }
+            }
+            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
+                // if the player is a banker
+                e.getPlayer().sendMessage("Atm Destroyed.");
+                main.removeIfTellerMachine(block);
+            } else {
+                // if universal off and player is not a banker
+                e.setCancelled(true);
+                e.getPlayer().sendMessage(ChatColor.RED + "Only the Banker can destroy ATMs.");
+            }
         }
     }
 
