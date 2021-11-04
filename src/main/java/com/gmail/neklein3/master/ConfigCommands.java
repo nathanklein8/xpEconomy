@@ -3,6 +3,7 @@ package com.gmail.neklein3.master;
 import com.sun.org.apache.xerces.internal.impl.io.UCSReader;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,7 +32,7 @@ public class ConfigCommands implements CommandExecutor {
             sender.sendMessage(message + " is now " + ChatColor.GREEN + arg.toUpperCase());
         }
         if (arg.equalsIgnoreCase("off")) {
-            sender.sendMessage(message + ChatColor.RED + arg.toUpperCase());
+            sender.sendMessage(message + " is now " + ChatColor.RED + arg.toUpperCase());
         }
     }
 
@@ -42,7 +43,6 @@ public class ConfigCommands implements CommandExecutor {
 
         // assign banker command
         if (command.getName().equalsIgnoreCase("assignBanker")) {
-
             // if they sent arguments
             if (args.length > 0) {
 
@@ -57,10 +57,9 @@ public class ConfigCommands implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "The Banker role has been cleared,");
                     Main.saveConfigFile();
                     return true;
-
                 }
 
-
+                // if they input a name of online player
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (args[0].equals(p.getDisplayName())) {
                         // stuff to do when they do the right command
@@ -78,6 +77,17 @@ public class ConfigCommands implements CommandExecutor {
                         return true;
                     }
                 }
+
+                // if they input a name of offline player
+                for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+                    if (args[0].equalsIgnoreCase(p.getName())) {
+                        sender.sendMessage(args[0] + " is now the Banker.");
+                        Main.config.set("Banker", p.getUniqueId().toString());
+                        Main.saveConfigFile();
+                        return true;
+                    }
+                }
+
             }
         }
 
@@ -141,6 +151,7 @@ public class ConfigCommands implements CommandExecutor {
                         if (args[1].equalsIgnoreCase("twoWayMode")) {
                             setting("exchangeTerminalTwoWayMode", args[2]);
                             message(sender, args[2], "Exchange Terminal two way mode");
+                            return true;
                         }
                     }
                     if (args[0].equalsIgnoreCase("ATM")) {

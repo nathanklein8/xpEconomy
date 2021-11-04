@@ -30,7 +30,7 @@ public class BankMenuListener implements Listener {
                     case MAGENTA_CONCRETE:
                         main.transaction(TransactionType.XPTOCASH, player);
                         break;
-                    case RED_CONCRETE:
+                    case RED_STAINED_GLASS_PANE:
                         // gets the distance to the nearest TellerMachine
                         double lowestDistance = 10.0;
                         if (!(main.ExchangeTerminalList.isEmpty())) {

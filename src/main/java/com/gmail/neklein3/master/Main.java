@@ -212,6 +212,24 @@ public class Main extends JavaPlugin implements Listener {
         saveConfigFile();
     }
 
+    public int getPlayerBalance(Player p) {
+        return config.getInt("bankAccounts." + p.getUniqueId().toString() + ".currentBalance");
+    }
+
+    public void increaseBalance(Player p) {
+        String uuid = p.getUniqueId().toString();
+        int currentBalance = getPlayerBalance(p);
+        config.set("bankAccounts." + uuid + ".currentBalance", currentBalance + 1);
+        saveConfigFile();
+    }
+
+    public void decreaseBalance(Player p) {
+        String uuid = p.getUniqueId().toString();
+        int currentBalance = getPlayerBalance(p);
+        config.set("bankAccounts." + uuid + ".currentBalance", currentBalance - 1);
+        saveConfigFile();
+    }
+
     public void transaction(TransactionType type, Player p) {
 
         ItemStack currency = new ItemStack(Material.ACACIA_FENCE, 1);
@@ -222,9 +240,7 @@ public class Main extends JavaPlugin implements Listener {
         currencyMeta.setCustomModelData(moneyModelDataNumber);
         currency.setItemMeta(currencyMeta);
 
-        String playerUUIDString = p.getUniqueId().toString();
-        String path = "bankAccounts." + playerUUIDString + ".currentBalance";
-        int playerBalance = config.getInt(path);
+        int playerBalance = getPlayerBalance(p);
 
         if (type == TransactionType.XPTOCASH) {
             if (p.getLevel() >= 1) {
@@ -250,9 +266,7 @@ public class Main extends JavaPlugin implements Listener {
         } else if (type == TransactionType.WITHDRAW) {
             if (playerBalance > 0) {
                 p.getInventory().addItem(currency);
-                playerBalance--;
-                config.set(path, playerBalance);
-                saveConfigFile();
+                decreaseBalance(p);
                 decreaseTotalBalance();
                 p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
                 return;
@@ -261,9 +275,7 @@ public class Main extends JavaPlugin implements Listener {
             for (ItemStack item : p.getInventory().getContents()) {
                 if (checkMaterialNameNumber(item, Material.ACACIA_FENCE, moneyName, moneyModelDataNumber)) {
                     item.setAmount(item.getAmount()-1);
-                    playerBalance++;
-                    config.set(path, playerBalance);
-                    saveConfigFile();
+                    increaseBalance(p);
                     increaseTotalBalance();
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
                 }

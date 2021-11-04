@@ -121,13 +121,13 @@ public class Bank implements Listener {
         ItemStack convertToXpItem = new ItemStack(Material.LIME_CONCRETE, 1);
         ItemMeta convertToXpItemMeta = convertToXpItem.getItemMeta();
         assert convertToXpItemMeta != null;
-        convertToXpItemMeta.setDisplayName(main.color("&6Convert to Experience"));
+        convertToXpItemMeta.setDisplayName(ChatColor.GREEN + "Convert to Experience");
         convertToXpItem.setItemMeta(convertToXpItemMeta);
 
         ItemStack convertFromXpItem = new ItemStack(Material.MAGENTA_CONCRETE, 1);
         ItemMeta convertFromXpItemMeta = convertFromXpItem.getItemMeta();
         assert convertFromXpItemMeta != null;
-        convertFromXpItemMeta.setDisplayName(main.color("&5Convert to Physical Currency"));
+        convertFromXpItemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Convert to Physical Currency");
         convertFromXpItem.setItemMeta(convertFromXpItemMeta);
 
         ItemStack backgroundLightItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
@@ -145,27 +145,27 @@ public class Bank implements Listener {
         ItemStack backgroundConvertToXpItem = new ItemStack(Material.LIME_STAINED_GLASS_PANE, 1);
         ItemMeta backgroundConvertToXpItemMeta = backgroundConvertToXpItem.getItemMeta();
         assert backgroundConvertToXpItemMeta != null;
-        backgroundConvertToXpItemMeta.setDisplayName(main.color(""));
+        backgroundConvertToXpItemMeta.setDisplayName(main.color("&0_"));
         backgroundConvertToXpItem.setItemMeta(backgroundConvertToXpItemMeta);
 
         ItemStack backgroundConvertFromXpItem = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE, 1);
         ItemMeta backgroundConvertFromXpItemMeta = backgroundConvertFromXpItem.getItemMeta();
         assert backgroundConvertFromXpItemMeta != null;
-        backgroundConvertFromXpItemMeta.setDisplayName(main.color(""));
+        backgroundConvertFromXpItemMeta.setDisplayName(main.color("&0_"));
         backgroundConvertFromXpItem.setItemMeta(backgroundConvertFromXpItemMeta);
 
         //admin only
-        ItemStack disableButtonItem = new ItemStack(Material.RED_CONCRETE, 1);
+        ItemStack disableButtonItem = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
         ItemMeta disableButtonItemMeta = disableButtonItem.getItemMeta();
         assert disableButtonItemMeta != null;
         disableButtonItemMeta.setDisplayName(main.color("&4Disable Atm."));
         disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
 
-        ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_CONCRETE, 1);
+        ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
         ItemMeta currentMoneyInBankItemMeta = currentMoneyInBankItem.getItemMeta();
         currentMoneyInBankItemMeta.setDisplayName(ChatColor.DARK_BLUE + "Money across all bank accounts");
-        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + Main.config.getInt("totalBalance")));
+        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + main.getTotalBalance()));
         currentMoneyInBankItem.setItemMeta(currentMoneyInBankItemMeta);
 
         //Item Settings
@@ -180,29 +180,35 @@ public class Bank implements Listener {
         /*8*/ mainBankGui.setItem(8, backgroundDarkItem);
         /*9*/ mainBankGui.setItem(9, backgroundLightItem);
 
-        // these will always be there
-        /*10*/ mainBankGui.setItem(10, backgroundConvertToXpItem);
-        /*11*/ mainBankGui.setItem(11, convertToXpItem);
-        /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
-
-
-        /*13*/ mainBankGui.setItem(13, backgroundLightItem);
-
         if (main.getExchangeTerminalTwoWayMode() != null) {
             if (main.getExchangeTerminalTwoWayMode()) {
-                // if two-way mode is on
-                mainBankGui.setItem(14, backgroundConvertFromXpItem);
-                mainBankGui.setItem(15, convertFromXpItem);
-                mainBankGui.setItem(16, backgroundConvertFromXpItem);
+                // two way mode on
+                /*10*/ mainBankGui.setItem(10, backgroundConvertToXpItem);
+                /*11*/ mainBankGui.setItem(11, convertToXpItem);
+                /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
+                /*13*/ mainBankGui.setItem(13, backgroundLightItem);
+                /*14*/ mainBankGui.setItem(14, backgroundConvertFromXpItem);
+                /*15*/ mainBankGui.setItem(15, convertFromXpItem);
+                /*16*/ mainBankGui.setItem(16, backgroundConvertFromXpItem);
             } else {
-                mainBankGui.setItem(14, backgroundDarkItem);
-                mainBankGui.setItem(15, backgroundLightItem);
-                mainBankGui.setItem(16, backgroundDarkItem);
+                // twp way mode off
+                /*10*/ mainBankGui.setItem(10, backgroundDarkItem);
+                /*11*/ mainBankGui.setItem(11, backgroundLightItem);
+                /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
+                /*13*/ mainBankGui.setItem(13, convertToXpItem);
+                /*14*/ mainBankGui.setItem(14, backgroundConvertToXpItem);
+                /*15*/ mainBankGui.setItem(15, backgroundLightItem);
+                /*16*/ mainBankGui.setItem(16, backgroundDarkItem);
             }
         } else {
-            mainBankGui.setItem(14, backgroundDarkItem);
-            mainBankGui.setItem(15, backgroundLightItem);
-            mainBankGui.setItem(16, backgroundDarkItem);
+            // twp way mode not set
+            /*10*/ mainBankGui.setItem(10, backgroundDarkItem);
+            /*11*/ mainBankGui.setItem(11, backgroundLightItem);
+            /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
+            /*13*/ mainBankGui.setItem(13, convertToXpItem);
+            /*14*/ mainBankGui.setItem(14, backgroundConvertToXpItem);
+            /*15*/ mainBankGui.setItem(15, backgroundLightItem);
+            /*16*/ mainBankGui.setItem(16, backgroundDarkItem);
         }
 
         /*17*/ mainBankGui.setItem(17, backgroundLightItem);

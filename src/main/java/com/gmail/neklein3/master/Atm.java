@@ -154,12 +154,18 @@ public class Atm implements Listener {
         backgroundDepositItem.setItemMeta(backgroundDepositItemMeta);
 
         //admin only
-        ItemStack disableButtonItem = new ItemStack(Material.RED_CONCRETE, 1);
+        ItemStack disableButtonItem = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
         ItemMeta disableButtonItemMeta = disableButtonItem.getItemMeta();
         assert disableButtonItemMeta != null;
         disableButtonItemMeta.setDisplayName(main.color("&4Disable Atm."));
         disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
+
+        ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemMeta currentMoneyInBankItemMeta = currentMoneyInBankItem.getItemMeta();
+        currentMoneyInBankItemMeta.setDisplayName(ChatColor.DARK_BLUE + "Current Balance:");
+        currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + main.getPlayerBalance(player)));
+        currentMoneyInBankItem.setItemMeta(currentMoneyInBankItemMeta);
 
         //Item Settings
         /*0*/ mainAtmGui.setItem(0, backgroundDarkItem);
@@ -175,7 +181,7 @@ public class Atm implements Listener {
         /*10*/ mainAtmGui.setItem(10, backgroundWithdrawItem);
         /*11*/ mainAtmGui.setItem(11, withdrawXpItem);
         /*12*/ mainAtmGui.setItem(12, backgroundWithdrawItem);
-        /*13*/ mainAtmGui.setItem(13, backgroundLightItem);
+        /*13*/ mainAtmGui.setItem(13, currentMoneyInBankItem);
         /*14*/ mainAtmGui.setItem(14, backgroundDepositItem);
         /*15*/ mainAtmGui.setItem(15, depositXpItem);
         /*16*/ mainAtmGui.setItem(16, backgroundDepositItem);
