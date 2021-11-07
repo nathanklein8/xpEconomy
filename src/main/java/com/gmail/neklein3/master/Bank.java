@@ -182,7 +182,7 @@ public class Bank implements Listener {
 
         if (main.getExchangeTerminalTwoWayMode() != null) {
             if (main.getExchangeTerminalTwoWayMode()) {
-                // two way mode on
+                // two-way mode on
                 /*10*/ mainBankGui.setItem(10, backgroundConvertToXpItem);
                 /*11*/ mainBankGui.setItem(11, convertToXpItem);
                 /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
@@ -191,7 +191,7 @@ public class Bank implements Listener {
                 /*15*/ mainBankGui.setItem(15, convertFromXpItem);
                 /*16*/ mainBankGui.setItem(16, backgroundConvertFromXpItem);
             } else {
-                // twp way mode off
+                // two-way mode off
                 /*10*/ mainBankGui.setItem(10, backgroundDarkItem);
                 /*11*/ mainBankGui.setItem(11, backgroundLightItem);
                 /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
@@ -201,7 +201,7 @@ public class Bank implements Listener {
                 /*16*/ mainBankGui.setItem(16, backgroundDarkItem);
             }
         } else {
-            // twp way mode not set
+            // two-way mode not set
             /*10*/ mainBankGui.setItem(10, backgroundDarkItem);
             /*11*/ mainBankGui.setItem(11, backgroundLightItem);
             /*12*/ mainBankGui.setItem(12, backgroundConvertToXpItem);
