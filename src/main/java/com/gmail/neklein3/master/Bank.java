@@ -115,7 +115,7 @@ public class Bank implements Listener {
     public void applyAtmUI(Player player) {
 
         //Beginning
-        Inventory mainBankGui = Bukkit.createInventory(null, 27, main.color("&7Bank Exchange Terminal"));
+        Inventory mainBankGui = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Bank Exchange Terminal");
 
         //ItemStacks
         ItemStack convertToXpItem = new ItemStack(Material.LIME_CONCRETE, 1);

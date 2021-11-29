@@ -48,8 +48,9 @@ public class ConfigCommands implements CommandExecutor {
 
                 // this part removes the banker
                 if (args[0].equalsIgnoreCase("clear")) {
+                    // let the old banker know they have been removed
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (p.getUniqueId().toString().equals(main.getBankerUUIDString())) {
+                        if (main.isBanker(p)) {
                             p.sendMessage(ChatColor.RED + "You are no longer the Banker");
                         }
                     }
@@ -61,16 +62,23 @@ public class ConfigCommands implements CommandExecutor {
 
                 // if they input a name of online player
                 for (Player p : Bukkit.getOnlinePlayers()) {
+
+                    // new banker is already a banker
+                    if (args[0].equals(p.getDisplayName()) && main.isBanker(p)) {
+                        sender.sendMessage(ChatColor.RED + "This player is already the banker");
+                        return true;
+                    }
+
+                    // input a new banker
                     if (args[0].equals(p.getDisplayName())) {
-                        // stuff to do when they do the right command
+                        // let old banker know
                         for (Player players : Bukkit.getOnlinePlayers()) {
-                            if (main.getBankerUUIDString() != null) {
-                                if (main.getBankerUUIDString().equals(players.getUniqueId().toString())) { // find the player that is currently Banker, if any
-                                    p.sendMessage(ChatColor.RED + "You are no longer the Banker");
-                                    p.sendMessage(ChatColor.GRAY + args[0] + " is the new Banker");
-                                }
+                            if (main.isBanker(players)) {
+                                players.sendMessage(ChatColor.RED + "You are no longer the Banker");
+                                players.sendMessage(ChatColor.GRAY + args[0] + " is the new Banker");
                             }
                         }
+                        // let new banker know
                         p.sendMessage(ChatColor.GREEN + "You have been assigned the role of Banker!");
                         Main.config.set("Banker", p.getUniqueId().toString());
                         Main.saveConfigFile();
@@ -88,6 +96,9 @@ public class ConfigCommands implements CommandExecutor {
                     }
                 }
 
+            } else {
+                // if they didn't send args
+                sender.sendMessage(ChatColor.RED + "usage: /assignBanker <player/clear>");
             }
         }
 
@@ -132,6 +143,15 @@ public class ConfigCommands implements CommandExecutor {
                     }
                 } else {
                     sender.sendMessage("Universal Exchange Terminal Destruction: " + ChatColor.LIGHT_PURPLE + "not set");
+                }
+                if (main.getExchangeTerminalTwoWayMode() != null) {
+                    if (main.getExchangeTerminalTwoWayMode()) {
+                        sender.sendMessage("Exchange Terminal two way mode: " + ChatColor.GREEN + "ON");
+                    } else {
+                        sender.sendMessage("Exchange Terminal two way mode: " + ChatColor.RED + "OFF");
+                    }
+                } else {
+                    sender.sendMessage("Exchange Terminal two way mode: " + ChatColor.LIGHT_PURPLE + "not set");
                 }
                 sender.sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "" + ChatColor.STRIKETHROUGH + "==================================");
                 return true;

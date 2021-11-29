@@ -7,10 +7,13 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,8 +23,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -128,12 +129,11 @@ public class Main extends JavaPlugin implements Listener {
         return block.getBlockData() instanceof Sign || block.getBlockData() instanceof WallSign;
     }
 
-    // before calling, check if null
     public Boolean isBanker(Player player) {
         if (getBankerUUIDString() != null) {
             return player.getUniqueId().toString().equals(getBankerUUIDString());
         }
-        return null;
+        return false;
     }
 
     // before calling, check if null
@@ -230,14 +230,18 @@ public class Main extends JavaPlugin implements Listener {
         saveConfigFile();
     }
 
+    String moneyName = "Money";
+    int moneyModelDataNumber = 69;
+    Material moneyMaterial = Material.SUNFLOWER;
+
     public void transaction(TransactionType type, Player p) {
 
-        ItemStack currency = new ItemStack(Material.ACACIA_FENCE, 1);
+        ItemStack currency = new ItemStack(Material.SUNFLOWER, 1);
         ItemMeta currencyMeta = currency.getItemMeta();
-        String moneyName = "Money!";
-        int moneyModelDataNumber = 69;
         currencyMeta.setDisplayName(moneyName);
         currencyMeta.setCustomModelData(moneyModelDataNumber);
+        currencyMeta.addEnchant(Enchantment.DURABILITY, 3, true);
+        currencyMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         currency.setItemMeta(currencyMeta);
 
         int playerBalance = getPlayerBalance(p);
@@ -254,7 +258,7 @@ public class Main extends JavaPlugin implements Listener {
         } else if (type == TransactionType.CASHTOXP) {
             // check if they have cash in their inventory
             for (ItemStack item : p.getInventory().getContents()) {
-                if (checkMaterialNameNumber(item, Material.ACACIA_FENCE, moneyName, moneyModelDataNumber)) {
+                if (checkMaterialNameNumber(item, moneyMaterial, moneyName, moneyModelDataNumber)) {
                     // they have currency in their inventory
                     // remove 1 currency and add 1 level
                     item.setAmount(item.getAmount()-1);
@@ -273,7 +277,7 @@ public class Main extends JavaPlugin implements Listener {
             }
         } else if (type == TransactionType.DEPOSIT) {
             for (ItemStack item : p.getInventory().getContents()) {
-                if (checkMaterialNameNumber(item, Material.ACACIA_FENCE, moneyName, moneyModelDataNumber)) {
+                if (checkMaterialNameNumber(item, moneyMaterial, moneyName, moneyModelDataNumber)) {
                     item.setAmount(item.getAmount()-1);
                     increaseBalance(p);
                     increaseTotalBalance();
@@ -301,6 +305,11 @@ public class Main extends JavaPlugin implements Listener {
             ExchangeTerminalList = (List<ExchangeTerminal>) config.get("ExchangeTerminalList");
         }
         config.addDefault("totalBalance", 0);
+        config.addDefault("exchangeTerminalTwoWayMode", true);
+        config.addDefault("universalExchangeTerminalCreation", true);
+        config.addDefault("universalExchangeTerminalDestruction", true);
+        config.addDefault("universalATMCreation", true);
+        config.addDefault("universalATMDestruction", true);
         saveConfigFile();
         getLogger().info("Config loaded.");
 
@@ -333,6 +342,18 @@ public class Main extends JavaPlugin implements Listener {
         String playerUUIDString = p.getUniqueId().toString();
 
         config.addDefault(playerUUIDString + ".currentBalance", 0);
+    }
+
+    @EventHandler
+    public void onPlaceMoney(BlockPlaceEvent e) {
+        Player p = e.getPlayer();
+
+        if (checkMaterialNameNumber(p.getInventory().getItemInMainHand(), moneyMaterial, moneyName, moneyModelDataNumber)) {
+            if (e.getBlockPlaced().getType().equals(moneyMaterial)) {
+                e.setCancelled(true);
+                p.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "please stop trying to place money");
+            }
+        }
     }
 
     public String color(final String string) {

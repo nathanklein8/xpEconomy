@@ -19,7 +19,7 @@ public class BankMenuListener implements Listener {
     public void onClick(InventoryClickEvent e) {
         Player player = (Player) e.getWhoClicked();
 
-        if (ChatColor.translateAlternateColorCodes('&', e.getView().getTitle()).equals(ChatColor.GRAY + "Bank Exchange Terminal")) {
+        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Bank Exchange Terminal")) {
             if (e.getCurrentItem() != null) {
                 e.setCancelled(true);
 
