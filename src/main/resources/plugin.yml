@@ -2,7 +2,7 @@ name: xpEconomy
 version: "beta"
 author: Nathan Klein Cole Wombwell
 main: com.gmail.neklein3.master.Main
-api-version: 1.17
+api-version: 1.18
 commands:
   assignBanker:
     description: Assigns a player to be the server's Banker.  Only one player can be the Banker at a time.  To clear the role of Banker, type /assignBanker clear
@@ -12,3 +12,15 @@ commands:
     description: Enter no arguments to display current settings
     usage: /xpEconomySettings <exchangeTerminal/ATM> <twoWayMode/creation/destruction> <on/off>
     permission: xpEconomy.settings
+  summonResourceCollector:
+    description: Summons a Resource Collector at the players location
+    usage: /summonResourceCollector
+    permission: xpEconomy.summonResourceCollector
+  assignPublicWorkAdministrator:
+    description: Assigns a player to be a Public Work Administrator.  Multiple players can be PWAs at the same time.
+    usage: /assignPublicWorkAdministrator <player>
+    permission: xpEconomy.assignPublicWorkAdministrator
+  removePublicWorkAdministrator:
+    description: Removes the Public Work Administrator title from the specified player
+    usage: /removePublicWorkAdministrator <player>
+    permission: xpEconomy.removePublicWorkAdministrator

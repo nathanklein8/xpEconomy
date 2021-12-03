@@ -14,6 +14,11 @@ import java.util.Map;
 @SerializableAs("ExchangeTerminal")
 public class ExchangeTerminal implements ConfigurationSerializable {
 
+    static Main main;
+    ExchangeTerminal(Main m) {
+        main = m;
+    }
+
     Location location;
     Boolean enabled;
 
@@ -37,9 +42,8 @@ public class ExchangeTerminal implements ConfigurationSerializable {
         double x = Double.parseDouble(split[1]);
         double y = Double.parseDouble(split[2]);
         double z = Double.parseDouble(split[3]);
-        Location location = new Location(world, x, y, z);
-
-        ExchangeTerminal et = new ExchangeTerminal(location);
+        Location loc = new Location(world, x, y, z);
+        ExchangeTerminal et = new ExchangeTerminal(loc);
         et.setEnabled((Boolean) map.get("Enabled"));
         return et;
     }

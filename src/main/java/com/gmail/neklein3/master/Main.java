@@ -1,5 +1,6 @@
 package com.gmail.neklein3.master;
 
+import jdk.nashorn.internal.ir.IfNode;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Sign;
@@ -8,7 +9,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -46,6 +50,9 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
+    List<ResourceCollectionJob> ResourceCollectionJobList = new ArrayList<>();
+    List<JobSign> JobSignList = new ArrayList<>();
+    List<String> PublicWorkAdministratorList = new ArrayList<>();
     List<TellerMachine> TellerMachineList = new ArrayList<>();
     List<ExchangeTerminal> ExchangeTerminalList = new ArrayList<>();
 
@@ -236,7 +243,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public void transaction(TransactionType type, Player p) {
 
-        ItemStack currency = new ItemStack(Material.SUNFLOWER, 1);
+        ItemStack currency = new ItemStack(moneyMaterial, 1);
         ItemMeta currencyMeta = currency.getItemMeta();
         currencyMeta.setDisplayName(moneyName);
         currencyMeta.setCustomModelData(moneyModelDataNumber);
@@ -251,7 +258,7 @@ public class Main extends JavaPlugin implements Listener {
                 // give them money and lower their level by 1
                 p.getInventory().addItem(currency);
                 p.setLevel(p.getLevel() - 1);
-                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PIGLIN_CELEBRATE, 5, 1);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 1);
                 return;
 
             }
@@ -263,7 +270,7 @@ public class Main extends JavaPlugin implements Listener {
                     // remove 1 currency and add 1 level
                     item.setAmount(item.getAmount()-1);
                     p.setLevel(p.getLevel() + 1);
-                    p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PIGLIN_ADMIRING_ITEM, 5, 1);
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 2);
                     return;
                 }
             }
@@ -272,7 +279,7 @@ public class Main extends JavaPlugin implements Listener {
                 p.getInventory().addItem(currency);
                 decreaseBalance(p);
                 decreaseTotalBalance();
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 5, 1);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 3);
                 return;
             }
         } else if (type == TransactionType.DEPOSIT) {
@@ -281,11 +288,77 @@ public class Main extends JavaPlugin implements Listener {
                     item.setAmount(item.getAmount()-1);
                     increaseBalance(p);
                     increaseTotalBalance();
-                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 5, 1);
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 4);
                 }
             }
         }
         saveConfigFile();
+    }
+
+    public void spawnResourceCollector(Player player) {
+        player.getWorld().spawnEntity(player.getLocation(), EntityType.WANDERING_TRADER);
+        List<Entity> nearbyEntities = player.getNearbyEntities(1, 1, 1);
+        nearbyEntities.removeIf(e -> !(e.getType().equals(EntityType.WANDERING_TRADER)));
+        for (Entity e : nearbyEntities) {
+            WanderingTrader trader = (WanderingTrader) e;
+            trader.setCustomName("Resource Collector");
+            trader.setInvulnerable(true);
+            trader.setPersistent(true);
+        }
+    }
+
+    public void addPWAtoList(Player player) {
+        if (PublicWorkAdministratorList != null) {
+            if (!(PublicWorkAdministratorList.contains(player.getUniqueId().toString()))) {
+                PublicWorkAdministratorList.add(player.getUniqueId().toString());
+                config.set("PublicWorkAdministratorList", PublicWorkAdministratorList);
+                saveConfigFile();
+            }
+        }
+    }
+
+    public void removePWAFromList(Player player) {
+        if (PublicWorkAdministratorList != null) {
+            PublicWorkAdministratorList.removeIf(s -> s.equals(player.getUniqueId().toString()));
+            config.set("PublicWorkAdministratorList", PublicWorkAdministratorList);
+            saveConfigFile();
+        }
+    }
+
+    public void addJobSignToList(JobSign jobSign) {
+        if (JobSignList != null) {
+            JobSignList.add(jobSign);
+            config.set("JobSignList", JobSignList);
+            saveConfigFile();
+        }
+    }
+
+    public void removeJobSignFromList(JobSign jobSign) {
+        if (JobSignList != null) {
+            JobSignList.removeIf(js -> JobSignList.contains(jobSign));
+            config.set("JobSignList", JobSignList);
+            saveConfigFile();
+        }
+    }
+
+    public boolean isPWA(Player player) {
+        if (PublicWorkAdministratorList != null) {
+            for (String s : PublicWorkAdministratorList) {
+                return s.equals(player.getUniqueId().toString());
+            }
+        }
+        return false;
+    }
+
+    public void newResourceJob(Material m, int amount) {
+        ResourceCollectionJob job = new ResourceCollectionJob(m, amount);
+        if (ResourceCollectionJobList.size() < 18) {
+            ResourceCollectionJobList.add(job);
+            config.set("ResourceCollectionJobList", ResourceCollectionJobList);
+            saveConfigFile();
+        } else {
+            this.getLogger().info("Resource Job List is full.  Cannot add new job.");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -295,6 +368,7 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("Serializing config...");
         ConfigurationSerialization.registerClass(TellerMachine.class, "TellerMachine");
         ConfigurationSerialization.registerClass(ExchangeTerminal.class, "ExchangeTerminal");
+        ConfigurationSerialization.registerClass(JobSign.class, "JobSign");
         getLogger().info("Loading config...");
         loadConfig();
         saveConfigFile();
@@ -303,6 +377,15 @@ public class Main extends JavaPlugin implements Listener {
         }
         if (config.get("ExchangeTerminalList") != null) {
             ExchangeTerminalList = (List<ExchangeTerminal>) config.get("ExchangeTerminalList");
+        }
+        if (config.get("PublicWorkAdministratorList") != null) {
+            PublicWorkAdministratorList = (List<String>) config.get("PublicWorkAdministratorList");
+        }
+        if (config.get("JobSignList") != null) {
+            JobSignList = (List<JobSign>) config.get("JobSignList");
+        }
+        if (config.get("ResourceCollectionJobList") != null) {
+            ResourceCollectionJobList = (List<ResourceCollectionJob>) config.get("ResourceCollectionJobList");
         }
         config.addDefault("totalBalance", 0);
         config.addDefault("exchangeTerminalTwoWayMode", true);
@@ -319,19 +402,29 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new Atm(this), this);
         Bukkit.getPluginManager().registerEvents(new AtmMenuListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BankMenuListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new ResourceCollector(this), this);
+        Bukkit.getPluginManager().registerEvents(new ResourceCollectorMenuListener(this), this);
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");
         this.getCommand("assignBanker").setExecutor(new ConfigCommands(this));
+        this.getCommand("assignPublicWorkAdministrator").setExecutor(new ConfigCommands(this));
+        this.getCommand("removePublicWorkAdministrator").setExecutor(new ConfigCommands(this));
+        this.getCommand("summonResourceCollector").setExecutor(new ConfigCommands(this));
         this.getCommand("xpEconomySettings").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
 
+        saveConfigFile();
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Backing up config...");
         config.set("TellerMachineList", TellerMachineList);
+        config.set("ExchangeTerminalList", ExchangeTerminalList);
+        config.set("PublicWorkAdministratorList", PublicWorkAdministratorList);
+        config.set("JobSignList", JobSignList);
+        config.set("ResourceCollectionJobList", ResourceCollectionJobList);
         saveConfigFile();
         getLogger().info("Config has been backed up.");
     }
@@ -340,14 +433,12 @@ public class Main extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         String playerUUIDString = p.getUniqueId().toString();
-
         config.addDefault(playerUUIDString + ".currentBalance", 0);
     }
 
     @EventHandler
     public void onPlaceMoney(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-
         if (checkMaterialNameNumber(p.getInventory().getItemInMainHand(), moneyMaterial, moneyName, moneyModelDataNumber)) {
             if (e.getBlockPlaced().getType().equals(moneyMaterial)) {
                 e.setCancelled(true);

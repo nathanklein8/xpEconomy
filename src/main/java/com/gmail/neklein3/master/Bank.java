@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -158,8 +160,8 @@ public class Bank implements Listener {
         ItemStack disableButtonItem = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
         ItemMeta disableButtonItemMeta = disableButtonItem.getItemMeta();
         assert disableButtonItemMeta != null;
-        disableButtonItemMeta.setDisplayName(main.color("&4Disable Atm."));
-        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
+        disableButtonItemMeta.setDisplayName(main.color("&4Disable Exchange Terminal."));
+        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cDisables the Terminal until you right click it again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
 
         ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
@@ -167,6 +169,15 @@ public class Bank implements Listener {
         currentMoneyInBankItemMeta.setDisplayName(ChatColor.DARK_BLUE + "Money across all bank accounts");
         currentMoneyInBankItemMeta.setLore(Arrays.asList(ChatColor.BLUE + "" + main.getTotalBalance()));
         currentMoneyInBankItem.setItemMeta(currentMoneyInBankItemMeta);
+
+        Material moneyMaterial = Material.SUNFLOWER;
+        ItemStack mintMoneyItem = new ItemStack(moneyMaterial);
+        ItemMeta currencyMeta = mintMoneyItem.getItemMeta();
+        currencyMeta.setDisplayName("Mint Currency");
+        currencyMeta.addEnchant(Enchantment.DURABILITY, 3, true);
+        currencyMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        mintMoneyItem.setItemMeta(currencyMeta);
+
 
         //Item Settings
         /*0*/ mainBankGui.setItem(0, backgroundDarkItem);
@@ -227,7 +238,16 @@ public class Bank implements Listener {
         /*19*/ mainBankGui.setItem(19, backgroundLightItem);
         /*20*/ mainBankGui.setItem(20, backgroundDarkItem);
         /*21*/ mainBankGui.setItem(21, backgroundLightItem);
-        /*22*/ mainBankGui.setItem(22, backgroundDarkItem);
+
+        if (main.isBanker(player) != null) {
+            if (main.isBanker(player)) {
+                mainBankGui.setItem(22, mintMoneyItem);
+            } else {
+                /*22*/ mainBankGui.setItem(22, backgroundDarkItem);
+            }
+        } else
+            /*22*/ mainBankGui.setItem(22, backgroundDarkItem);
+
         /*23*/ mainBankGui.setItem(23, backgroundLightItem);
         /*24*/ mainBankGui.setItem(24, backgroundDarkItem);
         /*25*/ mainBankGui.setItem(25, backgroundLightItem);

@@ -32,8 +32,8 @@ public class Atm implements Listener {
             main.addTellerMachineToList(atm);
 
             event.setLine(0, "* Exp Economy *");
-            event.setLine(1, "Bank");
-            event.setLine(2, "Atm");
+            event.setLine(1, "ATM");
+            event.setLine(2, "   ");
             event.setLine(3, atm.getStatusString());
         }
     }
@@ -158,7 +158,7 @@ public class Atm implements Listener {
         ItemMeta disableButtonItemMeta = disableButtonItem.getItemMeta();
         assert disableButtonItemMeta != null;
         disableButtonItemMeta.setDisplayName(main.color("&4Disable Atm."));
-        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cThis button will disable the Atm until you right click the Atm again.")));
+        disableButtonItemMeta.setLore(Arrays.asList(main.color("&cDisables the Atm until you right click it again.")));
         disableButtonItem.setItemMeta(disableButtonItemMeta);
 
         ItemStack currentMoneyInBankItem = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);

@@ -38,16 +38,14 @@ public class TellerMachine implements ConfigurationSerializable {
     public static TellerMachine deserialize(Map<String, Object> map) {
         Boolean enabled = (Boolean) map.get("Enabled");
         Boolean twoWayMode = (Boolean) map.get("TwoWayMode");
-
-        String stringLocation = (String) map.get("Location");
-        String[] split = stringLocation.split(" ");
+        String l = (String) map.get("Location");
+        String[] split = l.split(" ");
         World world = Bukkit.getWorld(split[0]);
         double x = Double.parseDouble(split[1]);
         double y = Double.parseDouble(split[2]);
         double z = Double.parseDouble(split[3]);
-        Location location = new Location(world, x, y, z);
-
-        TellerMachine tm = new TellerMachine(location);
+        Location loc = new Location(world, x, y, z);
+        TellerMachine tm = new TellerMachine(loc);
         tm.setEnabled(enabled);
         tm.setTwoWayMode(twoWayMode);
 

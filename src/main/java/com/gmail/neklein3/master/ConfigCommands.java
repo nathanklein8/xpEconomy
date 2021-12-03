@@ -1,6 +1,5 @@
 package com.gmail.neklein3.master;
 
-import com.sun.org.apache.xerces.internal.impl.io.UCSReader;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -8,8 +7,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.Objects;
 
 public class ConfigCommands implements CommandExecutor {
 
@@ -39,8 +36,42 @@ public class ConfigCommands implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        if (command.getName().equalsIgnoreCase("summonResourceCollector")) {
+            if (sender instanceof Player) {
+                Player p = (Player) sender;
+                main.spawnResourceCollector(p);
+                return true;
+            }
+        }
 
-
+        // assign public works
+        if (command.getName().equalsIgnoreCase("assignPublicWorkAdministrator")) {
+            if (args.length > 0) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (args[0].equals(p.getDisplayName())) {
+                        if (main.PublicWorkAdministratorList.contains(p.getUniqueId().toString())) {
+                            p.sendMessage(ChatColor.RED + "This player is already a Public Work Administrator");
+                            return true;
+                        } else {
+                            p.sendMessage(ChatColor.GREEN + "You have been assigned to be a Public Work Administrator!");
+                            main.addPWAtoList(p);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        if (command.getName().equalsIgnoreCase("removePublicWorkAdministrator")) {
+            if (args.length > 0) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (args[0].equals(p.getDisplayName())) {
+                        p.sendMessage(ChatColor.RED + "You are no longer a Public Work Administrator");
+                        main.removePWAFromList(p);
+                        return true;
+                    }
+                }
+            }
+        }
         // assign banker command
         if (command.getName().equalsIgnoreCase("assignBanker")) {
             // if they sent arguments

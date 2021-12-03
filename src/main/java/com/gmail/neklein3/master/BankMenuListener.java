@@ -1,12 +1,17 @@
 package com.gmail.neklein3.master;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class BankMenuListener implements Listener {
 
@@ -54,6 +59,18 @@ public class BankMenuListener implements Listener {
                         // exit ui
                         player.closeInventory();
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 10, 1);
+                    case SUNFLOWER:
+                        String moneyName = "Money";
+                        int moneyModelDataNumber = 69;
+                        Material moneyMaterial = Material.SUNFLOWER;
+                        ItemStack currency = new ItemStack(moneyMaterial, 1);
+                        ItemMeta currencyMeta = currency.getItemMeta();
+                        currencyMeta.setDisplayName(moneyName);
+                        currencyMeta.setCustomModelData(moneyModelDataNumber);
+                        currencyMeta.addEnchant(Enchantment.DURABILITY, 3, true);
+                        currencyMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        currency.setItemMeta(currencyMeta);
+                        player.getInventory().addItem(currency);
                     default:
                         return;
                 }
