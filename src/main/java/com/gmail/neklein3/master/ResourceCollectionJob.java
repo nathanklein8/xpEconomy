@@ -17,6 +17,7 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
     Material material;
     int amount;
     boolean completed;
+    int reward = 0;
 
     public ResourceCollectionJob(Material m, int amount, boolean completed) {
         material = m;
@@ -30,6 +31,7 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
         result.put("Item", new ItemStack(material));
         result.put("Amount", amount);
         result.put("Completed", completed);
+        result.put("Reward", reward);
         return result;
     }
 
@@ -39,7 +41,9 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
         int amount = (int) map.get("Amount");
         boolean completed = (boolean) map.get("Completed");
 
-        return new ResourceCollectionJob(material, amount, completed);
+        ResourceCollectionJob job = new ResourceCollectionJob(material, amount, completed);
+        job.setReward((int) map.get("Reward"));
+        return job;
     }
 
     public Material getMaterial() {
@@ -64,6 +68,11 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
         if (meta != null) {
             List<String> lore = new ArrayList<>();
             lore.add("Amount: " + amount);
+            if (reward == 0) {
+                lore.add("Reward not-set");
+            } else {
+                lore.add("Reward: " + reward);
+            }
             meta.setLore(lore);
             icon.setItemMeta(meta);
         }
@@ -84,6 +93,15 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
         return result;
     }
 
+    public void setReward(int reward) {
+        this.reward = reward;
+    }
 
+    public int getReward() {
+        return reward;
+    }
 
+    public boolean hasReward() {
+        return reward == 0;
+    }
 }

@@ -17,13 +17,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main extends JavaPlugin implements Listener {
@@ -235,7 +233,7 @@ public class Main extends JavaPlugin implements Listener {
         saveConfigFile();
     }
 
-    String moneyName = "Money";
+    String moneyName = "xpMoney";
     int moneyModelDataNumber = 69;
     Material moneyMaterial = Material.SUNFLOWER;
 
@@ -268,7 +266,7 @@ public class Main extends JavaPlugin implements Listener {
                     // remove 1 currency and add 1 level
                     item.setAmount(item.getAmount()-1);
                     p.setLevel(p.getLevel() + 1);
-                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 2);
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 10);
                     return;
                 }
             }
@@ -277,7 +275,7 @@ public class Main extends JavaPlugin implements Listener {
                 p.getInventory().addItem(currency);
                 decreaseBalance(p);
                 decreaseTotalBalance();
-                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 3);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 5);
                 return;
             }
         } else if (type == TransactionType.DEPOSIT) {
@@ -286,7 +284,7 @@ public class Main extends JavaPlugin implements Listener {
                     item.setAmount(item.getAmount()-1);
                     increaseBalance(p);
                     increaseTotalBalance();
-                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 4);
+                    p.getWorld().playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 7, 15);
                 }
             }
         }
@@ -375,11 +373,22 @@ public class Main extends JavaPlugin implements Listener {
     public ResourceCollectionJob convertIconToJob(ItemStack icon) {
         ItemMeta meta = icon.getItemMeta();
         List<String> lore = meta.getLore();
+        int reward;
         if (lore != null) {
-            String[] split = lore.get(0).split(" ");
-            int amount = Integer.parseInt(split[1]);
+            String[] amountLine = lore.get(0).split(" ");
+            int amount = Integer.parseInt(amountLine[1]);
+            String[] rewardLine = lore.get(1).split(" ");
+            if (rewardLine[1].equals("not-set")) {
+                reward = 0;
+                getLogger().info("reward = 0");
+            } else {
+                reward = Integer.parseInt(rewardLine[1]);
+                getLogger().info("reward = " + reward);
+            }
             Material material = icon.getType();
-            return new ResourceCollectionJob(material, amount, false);
+            ResourceCollectionJob job = new ResourceCollectionJob(material, amount, false);
+            job.setReward(reward);
+            return job;
         }
         return null;
     }
@@ -398,30 +407,51 @@ public class Main extends JavaPlugin implements Listener {
 
     public void completeJob(Player p, ResourceCollectionJob job) {
         if (canPlayerCompleteJob(p, job)) {
+            if (job.getReward() != 0) {
 
-            int numRemoved = 0;
-            int totalToRemove = job.getAmount();
 
-            while (numRemoved < totalToRemove) {
-                int index = p.getInventory().first(job.getMaterial());
-                numRemoved = numRemoved + p.getInventory().getItem(index).getAmount();
-                p.getInventory().setItem(index, null);
+
+                int numRemoved = 0;
+                int totalToRemove = job.getAmount();
+
+                while (numRemoved < totalToRemove) {
+                    int index = p.getInventory().first(job.getMaterial());
+                    numRemoved = numRemoved + p.getInventory().getItem(index).getAmount();
+                    p.getInventory().setItem(index, null);
+                }
+                if (numRemoved == totalToRemove) {
+                    job.setCompleted(true);
+                    removeResourceJob(job);
+
+                    ItemStack currency = new ItemStack(moneyMaterial, job.getReward());
+                    ItemMeta currencyMeta = currency.getItemMeta();
+                    currencyMeta.setDisplayName(moneyName);
+                    currencyMeta.setCustomModelData(moneyModelDataNumber);
+                    currencyMeta.addEnchant(Enchantment.DURABILITY, 3, true);
+                    currencyMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    currency.setItemMeta(currencyMeta);
+
+                    p.getInventory().addItem(currency);
+
+                    CompletedResourceCollectionJobList.add(job);
+                    config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
+                    saveConfigFile();
+                } else if (numRemoved > totalToRemove){
+                    int overflow = numRemoved - totalToRemove;
+                    p.getInventory().addItem(new ItemStack(job.getMaterial(), overflow));
+                    job.setCompleted(true);
+                    removeResourceJob(job);
+                    CompletedResourceCollectionJobList.add(job);
+                    config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
+                    saveConfigFile();
+                }
+            } else {
+                p.sendMessage(ChatColor.RED + "This job has not been assigned a reward yet, please wait for the Banker to assign it's reward.");
+                p.closeInventory();
             }
-            if (numRemoved == totalToRemove) {
-                job.setCompleted(true);
-                removeResourceJob(job);
-                CompletedResourceCollectionJobList.add(job);
-                config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
-                saveConfigFile();
-            } else if (numRemoved > totalToRemove){
-                int overflow = numRemoved - totalToRemove;
-                p.getInventory().addItem(new ItemStack(job.getMaterial(), overflow));
-                job.setCompleted(true);
-                removeResourceJob(job);
-                CompletedResourceCollectionJobList.add(job);
-                config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
-                saveConfigFile();
-            }
+        } else {
+            p.sendMessage(ChatColor.RED + "You do not have enough resources to complete this Job!");
+            p.closeInventory();
         }
         p.closeInventory();
 
@@ -474,6 +504,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new BankMenuListener(this), this);
         Bukkit.getPluginManager().registerEvents(new ResourceCollector(this), this);
         Bukkit.getPluginManager().registerEvents(new ResourceCollectorMenuListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new JobSignListener(this), this);
         getLogger().info("Events registered.");
 
         getLogger().info("Registering commands...");

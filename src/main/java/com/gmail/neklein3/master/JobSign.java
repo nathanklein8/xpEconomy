@@ -12,11 +12,6 @@ import java.util.Map;
 @SerializableAs("JobSign")
 public class JobSign implements ConfigurationSerializable {
 
-    static Main main;
-    JobSign(Main m) {
-        main = m;
-    }
-
     Location location;
 
     public JobSign(Location l) {

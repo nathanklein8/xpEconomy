@@ -5,7 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,6 +21,9 @@ public class ResourceCollectorMenuListener implements Listener {
 
     Material selectedMat = null;
     int amount = 0;
+
+    ResourceCollectionJob selectedJobForReward = null;
+    int selectedReward = 0;
 
     Main main;
     public ResourceCollectorMenuListener(Main main) {
@@ -54,6 +56,10 @@ public class ResourceCollectorMenuListener implements Listener {
                         player.closeInventory();
                         chooseBlockGUI(player);
                         break;
+                    case SUNFLOWER:
+                        player.closeInventory();
+                        selectBlockForRewardGUI(player);
+                        break;
                 }
 
                 if (main.convertIconToJob(e.getCurrentItem()) != null) {
@@ -77,8 +83,6 @@ public class ResourceCollectorMenuListener implements Listener {
         if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Select Amount")) {
             if (e.getCurrentItem() != null) {
                 e.setCancelled(true);
-
-
 
                 switch (e.getCurrentItem().getType()) {
                     case RED_WOOL:
@@ -117,6 +121,45 @@ public class ResourceCollectorMenuListener implements Listener {
                 }
             }
         }
+
+        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Select Job for reward assignment")) {
+            if (e.getCurrentItem() != null) {
+                e.setCancelled(true);
+
+                if (main.convertIconToJob(e.getCurrentItem()) != null) {
+                    ResourceCollectionJob job = main.convertIconToJob(e.getCurrentItem());
+
+                    selectedJobForReward = job;
+                    selectedReward = job.getReward();
+
+                    player.closeInventory();
+                    setRewardGUI(player);
+                }
+
+            }
+        }
+
+        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Select reward amount in xp")) {
+            if (e.getCurrentItem() != null) {
+                e.setCancelled(true);
+
+                selectedReward = Integer.parseInt(e.getCurrentItem().getItemMeta().getDisplayName());
+
+                if (selectedJobForReward != null && selectedReward != 0) {
+
+                    main.removeResourceJob(selectedJobForReward);
+
+                    selectedJobForReward.setReward(selectedReward);
+                    main.ResourceCollectionJobList.add(selectedJobForReward);
+                    Main.config.set("ResourceCollectionJobList", main.ResourceCollectionJobList);
+                    Main.saveConfigFile();
+
+                }
+
+                player.closeInventory();
+
+            }
+        }
     }
 
     ItemStack item(Material m, String name, String lore) {
@@ -134,7 +177,7 @@ public class ResourceCollectorMenuListener implements Listener {
     public void chooseBlockGUI(Player player) {
         Inventory selectBlock = Bukkit.createInventory(null, 9, ChatColor.DARK_GRAY + "Select Block");
 
-        ItemStack chooseBlock = new ItemStack(Material.WRITTEN_BOOK, 1);
+        ItemStack chooseBlock = new ItemStack(Material.WRITABLE_BOOK, 1);
         ItemMeta chooseBlockMeta = chooseBlock.getItemMeta();
         chooseBlockMeta.setDisplayName(ChatColor.DARK_AQUA + "Choose block for New Collection Job");
         List<String> lore = new ArrayList<>();
@@ -146,6 +189,7 @@ public class ResourceCollectorMenuListener implements Listener {
 
         selectBlock.setItem(4, chooseBlock);
 
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
         player.openInventory(selectBlock);
     }
 
@@ -162,7 +206,42 @@ public class ResourceCollectorMenuListener implements Listener {
         selectAmount.setItem(7, item(Material.PURPLE_WOOL, "8 stacks", "512 blocks"));
         selectAmount.setItem(8, item(Material.BLACK_WOOL, "9 stacks", "576 blocks"));
 
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
         player.openInventory(selectAmount);
+    }
+
+    public void selectBlockForRewardGUI(Player player) {
+        Inventory selectBlockForReward = Bukkit.createInventory(null, 18, ChatColor.DARK_GRAY + "Select Job for reward assignment");
+
+        int i = 0;
+        if (main.ResourceCollectionJobList != null) {
+            for (ResourceCollectionJob job : main.ResourceCollectionJobList) {
+                if (i < 18) {
+                    selectBlockForReward.setItem(i, job.getJobIcon());
+                    selectBlockForReward.setItem(i, job.getJobIcon());
+                    i++;
+                }
+            }
+        }
+
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.openInventory(selectBlockForReward);
+    }
+
+    public void setRewardGUI(Player player) {
+        Inventory selectReward = Bukkit.createInventory(null, 54, ChatColor.DARK_GRAY + "Select reward amount in xp");
+
+        int i;
+        for (i = 1; i <= 54; i++) {
+            ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(String.valueOf(i));
+            item.setItemMeta(meta);
+            selectReward.setItem(i-1, item);
+        }
+
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.openInventory(selectReward);
     }
 
 }

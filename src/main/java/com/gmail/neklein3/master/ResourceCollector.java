@@ -3,6 +3,7 @@ package com.gmail.neklein3.master;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WanderingTrader;
@@ -10,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -53,6 +55,8 @@ public class ResourceCollector implements Listener {
 
         Inventory resourceCollectorGUIPWA = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Resource Collector");
 
+        Inventory resourceCollectorGUIBanker = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Resource Collector");
+
         ItemStack collectResourcesItem = new ItemStack(Material.CHEST, 1);
         ItemMeta collectResourcesItemMeta = collectResourcesItem.getItemMeta();
         collectResourcesItemMeta.setDisplayName(ChatColor.BLUE + "Collect resources");
@@ -63,12 +67,20 @@ public class ResourceCollector implements Listener {
         newJobItemMeta.setDisplayName(ChatColor.GREEN + "Create resource collection job");
         newJobItem.setItemMeta(newJobItemMeta);
 
+        ItemStack setReward = new ItemStack(Material.SUNFLOWER, 1);
+        ItemMeta setRewardMeta = setReward.getItemMeta();
+        setRewardMeta.setDisplayName(ChatColor.YELLOW + "Assign Rewards");
+        setRewardMeta.addEnchant(Enchantment.DURABILITY, 3, true);
+        setRewardMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        setReward.setItemMeta(setRewardMeta);
+
         int i = 0;
         if (main.ResourceCollectionJobList != null) {
             for (ResourceCollectionJob job : main.ResourceCollectionJobList) {
                 if (i < 18) {
                     resourceCollectorGUI.setItem(i, job.getJobIcon());
                     resourceCollectorGUIPWA.setItem(i, job.getJobIcon());
+                    resourceCollectorGUIBanker.setItem(i, job.getJobIcon());
                     i++;
                 }
             }
@@ -76,9 +88,12 @@ public class ResourceCollector implements Listener {
 
         resourceCollectorGUIPWA.setItem(18, newJobItem);
         resourceCollectorGUIPWA.setItem(26, collectResourcesItem);
+        resourceCollectorGUIBanker.setItem(22, setReward);
 
         if (main.isPWA(player)) {
             player.openInventory(resourceCollectorGUIPWA);
+        } else if (main.isBanker(player)){
+            player.openInventory(resourceCollectorGUIBanker);
         } else {
             player.openInventory(resourceCollectorGUI);
         }
