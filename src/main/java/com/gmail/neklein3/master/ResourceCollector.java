@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.EventHandler;
@@ -53,31 +52,35 @@ public class ResourceCollector implements Listener {
         Inventory resourceCollectorGUI = Bukkit.createInventory(null, 18, ChatColor.DARK_GRAY + "Resource Collector");
 
         Inventory resourceCollectorGUIPWA = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Resource Collector");
+
         ItemStack collectResourcesItem = new ItemStack(Material.CHEST, 1);
         ItemMeta collectResourcesItemMeta = collectResourcesItem.getItemMeta();
         collectResourcesItemMeta.setDisplayName(ChatColor.BLUE + "Collect resources");
-        resourceCollectorGUIPWA.setItem(26, collectResourcesItem);
+        collectResourcesItem.setItemMeta(collectResourcesItemMeta);
+
         ItemStack newJobItem = new ItemStack(Material.GREEN_CONCRETE, 1);
         ItemMeta newJobItemMeta = newJobItem.getItemMeta();
         newJobItemMeta.setDisplayName(ChatColor.GREEN + "Create resource collection job");
-        resourceCollectorGUIPWA.setItem(18, newJobItem);
+        newJobItem.setItemMeta(newJobItemMeta);
 
         int i = 0;
         if (main.ResourceCollectionJobList != null) {
             for (ResourceCollectionJob job : main.ResourceCollectionJobList) {
-                resourceCollectorGUI.setItem(i, job.getJobIcon());
-                i++;
-                resourceCollectorGUIPWA.setItem(i, job.getJobIcon());
-                i++;
+                if (i < 18) {
+                    resourceCollectorGUI.setItem(i, job.getJobIcon());
+                    resourceCollectorGUIPWA.setItem(i, job.getJobIcon());
+                    i++;
+                }
             }
         }
 
+        resourceCollectorGUIPWA.setItem(18, newJobItem);
+        resourceCollectorGUIPWA.setItem(26, collectResourcesItem);
 
         if (main.isPWA(player)) {
             player.openInventory(resourceCollectorGUIPWA);
         } else {
             player.openInventory(resourceCollectorGUI);
         }
-
     }
 }

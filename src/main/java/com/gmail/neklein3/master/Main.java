@@ -1,6 +1,5 @@
 package com.gmail.neklein3.master;
 
-import jdk.nashorn.internal.ir.IfNode;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Sign;
@@ -9,10 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.WanderingTrader;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -21,11 +17,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main extends JavaPlugin implements Listener {
@@ -49,7 +47,7 @@ public class Main extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
     }
-
+    List<ResourceCollectionJob> CompletedResourceCollectionJobList = new ArrayList<>();
     List<ResourceCollectionJob> ResourceCollectionJobList = new ArrayList<>();
     List<JobSign> JobSignList = new ArrayList<>();
     List<String> PublicWorkAdministratorList = new ArrayList<>();
@@ -343,15 +341,13 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean isPWA(Player player) {
         if (PublicWorkAdministratorList != null) {
-            for (String s : PublicWorkAdministratorList) {
-                return s.equals(player.getUniqueId().toString());
-            }
+            return PublicWorkAdministratorList.contains(player.getUniqueId().toString());
         }
         return false;
     }
 
     public void newResourceJob(Material m, int amount) {
-        ResourceCollectionJob job = new ResourceCollectionJob(m, amount);
+        ResourceCollectionJob job = new ResourceCollectionJob(m, amount, false);
         if (ResourceCollectionJobList.size() < 18) {
             ResourceCollectionJobList.add(job);
             config.set("ResourceCollectionJobList", ResourceCollectionJobList);
@@ -359,6 +355,76 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             this.getLogger().info("Resource Job List is full.  Cannot add new job.");
         }
+    }
+
+    public void removeResourceJob(ResourceCollectionJob job) {
+
+        if (ResourceCollectionJobList != null) {
+            for (ResourceCollectionJob rcj : ResourceCollectionJobList) {
+                if (rcj.getMaterial() == job.getMaterial() && rcj.getAmount() == job.getAmount()) {
+                    ResourceCollectionJobList.remove(ResourceCollectionJobList.indexOf(rcj));
+                    break;
+                }
+            }
+
+            config.set("ResourceCollectionJobList", ResourceCollectionJobList);
+            saveConfigFile();
+        }
+    }
+
+    public ResourceCollectionJob convertIconToJob(ItemStack icon) {
+        ItemMeta meta = icon.getItemMeta();
+        List<String> lore = meta.getLore();
+        if (lore != null) {
+            String[] split = lore.get(0).split(" ");
+            int amount = Integer.parseInt(split[1]);
+            Material material = icon.getType();
+            return new ResourceCollectionJob(material, amount, false);
+        }
+        return null;
+    }
+
+    public boolean canPlayerCompleteJob(Player p, ResourceCollectionJob job) {
+        int totalInInv = 0;
+        for (ItemStack stack : p.getInventory()) {
+            if (stack != null) {
+                if (stack.getType().equals(job.getMaterial())) {
+                    totalInInv = totalInInv + stack.getAmount();
+                }
+            }
+        }
+        return totalInInv >= job.getAmount();
+    }
+
+    public void completeJob(Player p, ResourceCollectionJob job) {
+        if (canPlayerCompleteJob(p, job)) {
+
+            int numRemoved = 0;
+            int totalToRemove = job.getAmount();
+
+            while (numRemoved < totalToRemove) {
+                int index = p.getInventory().first(job.getMaterial());
+                numRemoved = numRemoved + p.getInventory().getItem(index).getAmount();
+                p.getInventory().setItem(index, null);
+            }
+            if (numRemoved == totalToRemove) {
+                job.setCompleted(true);
+                removeResourceJob(job);
+                CompletedResourceCollectionJobList.add(job);
+                config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
+                saveConfigFile();
+            } else if (numRemoved > totalToRemove){
+                int overflow = numRemoved - totalToRemove;
+                p.getInventory().addItem(new ItemStack(job.getMaterial(), overflow));
+                job.setCompleted(true);
+                removeResourceJob(job);
+                CompletedResourceCollectionJobList.add(job);
+                config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
+                saveConfigFile();
+            }
+        }
+        p.closeInventory();
+
     }
 
     @SuppressWarnings("unchecked")
@@ -369,6 +435,7 @@ public class Main extends JavaPlugin implements Listener {
         ConfigurationSerialization.registerClass(TellerMachine.class, "TellerMachine");
         ConfigurationSerialization.registerClass(ExchangeTerminal.class, "ExchangeTerminal");
         ConfigurationSerialization.registerClass(JobSign.class, "JobSign");
+        ConfigurationSerialization.registerClass(ResourceCollectionJob.class, "ResourceCollectionJob");
         getLogger().info("Loading config...");
         loadConfig();
         saveConfigFile();
@@ -386,6 +453,9 @@ public class Main extends JavaPlugin implements Listener {
         }
         if (config.get("ResourceCollectionJobList") != null) {
             ResourceCollectionJobList = (List<ResourceCollectionJob>) config.get("ResourceCollectionJobList");
+        }
+        if (config.get("CompletedResourceCollectionJobList") != null) {
+            CompletedResourceCollectionJobList = (List<ResourceCollectionJob>) config.get("CompletedResourceCollectionJobList");
         }
         config.addDefault("totalBalance", 0);
         config.addDefault("exchangeTerminalTwoWayMode", true);
@@ -425,6 +495,7 @@ public class Main extends JavaPlugin implements Listener {
         config.set("PublicWorkAdministratorList", PublicWorkAdministratorList);
         config.set("JobSignList", JobSignList);
         config.set("ResourceCollectionJobList", ResourceCollectionJobList);
+        config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);
         saveConfigFile();
         getLogger().info("Config has been backed up.");
     }
