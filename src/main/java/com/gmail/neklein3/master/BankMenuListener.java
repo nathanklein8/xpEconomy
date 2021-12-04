@@ -60,13 +60,10 @@ public class BankMenuListener implements Listener {
                         player.closeInventory();
                         player.getWorld().playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_OFF, 10, 1);
                     case SUNFLOWER:
-                        String moneyName = "Money";
-                        int moneyModelDataNumber = 69;
-                        Material moneyMaterial = Material.SUNFLOWER;
-                        ItemStack currency = new ItemStack(moneyMaterial, 1);
+                        ItemStack currency = new ItemStack(Material.SUNFLOWER, 1);
                         ItemMeta currencyMeta = currency.getItemMeta();
-                        currencyMeta.setDisplayName(moneyName);
-                        currencyMeta.setCustomModelData(moneyModelDataNumber);
+                        currencyMeta.setDisplayName("xpMoney");
+                        currencyMeta.setCustomModelData(69);
                         currencyMeta.addEnchant(Enchantment.DURABILITY, 3, true);
                         currencyMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                         currency.setItemMeta(currencyMeta);
