@@ -51,6 +51,7 @@ public class ResourceCollectorMenuListener implements Listener {
                         Main.config.set("CompletedResourceCollectionJobList", main.CompletedResourceCollectionJobList);
                         Main.saveConfigFile();
                         player.closeInventory();
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
                         break;
                     case GREEN_CONCRETE:
                         player.closeInventory();
@@ -89,8 +90,8 @@ public class ResourceCollectorMenuListener implements Listener {
                     Main.saveConfigFile();
                 }
 
-                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
-                e.getCurrentItem().setType(Material.AIR);
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
+                player.closeInventory();
 
             }
         }
@@ -99,9 +100,11 @@ public class ResourceCollectorMenuListener implements Listener {
             if (e.getCurrentItem() != null) {
                 e.setCancelled(true);
 
-                selectedMat = e.getCurrentItem().getType();
-                player.closeInventory();
-                chooseAmountGUI(player);
+                if (e.getCurrentItem().getType() != Material.WRITABLE_BOOK) {
+                    selectedMat = e.getCurrentItem().getType();
+                    player.closeInventory();
+                    chooseAmountGUI(player);
+                }
             }
         }
 
@@ -142,6 +145,7 @@ public class ResourceCollectorMenuListener implements Listener {
 
                 if (selectedMat != null && amount != 0) {
                     main.newResourceJob(selectedMat, amount);
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
                     player.closeInventory();
                 }
             }
@@ -214,7 +218,7 @@ public class ResourceCollectorMenuListener implements Listener {
 
         selectBlock.setItem(4, chooseBlock);
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
         player.openInventory(selectBlock);
     }
 
@@ -231,7 +235,7 @@ public class ResourceCollectorMenuListener implements Listener {
         selectAmount.setItem(7, item(Material.PURPLE_WOOL, "8 stacks", "512 blocks"));
         selectAmount.setItem(8, item(Material.BLACK_WOOL, "9 stacks", "576 blocks"));
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
         player.openInventory(selectAmount);
     }
 
@@ -249,7 +253,7 @@ public class ResourceCollectorMenuListener implements Listener {
             }
         }
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
         player.openInventory(deleteJobInventory);
     }
 
@@ -267,7 +271,7 @@ public class ResourceCollectorMenuListener implements Listener {
             }
         }
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
         player.openInventory(selectBlockForReward);
     }
 
@@ -283,7 +287,7 @@ public class ResourceCollectorMenuListener implements Listener {
             selectReward.setItem(i-1, item);
         }
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
         player.openInventory(selectReward);
     }
 
