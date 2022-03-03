@@ -138,7 +138,7 @@ public class Bank implements Listener {
         backgroundLightItemMeta.setDisplayName(main.color("&0_"));
         backgroundLightItem.setItemMeta(backgroundLightItemMeta);
 
-        ItemStack backgroundDarkItem = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+        ItemStack backgroundDarkItem = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1);
         ItemMeta backgroundDarkItemMeta = backgroundDarkItem.getItemMeta();
         assert backgroundDarkItemMeta != null;
         backgroundDarkItemMeta.setDisplayName(main.color("&0_"));

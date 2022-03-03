@@ -432,6 +432,7 @@ public class Main extends JavaPlugin implements Listener {
                     currency.setItemMeta(currencyMeta);
 
                     p.getInventory().addItem(currency);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 5, 1);
 
                     CompletedResourceCollectionJobList.add(job);
                     config.set("CompletedResourceCollectionJobList", CompletedResourceCollectionJobList);

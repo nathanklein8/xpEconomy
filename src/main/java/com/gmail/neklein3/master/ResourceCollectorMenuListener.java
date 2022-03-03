@@ -101,9 +101,11 @@ public class ResourceCollectorMenuListener implements Listener {
                 e.setCancelled(true);
 
                 if (e.getCurrentItem().getType() != Material.WRITABLE_BOOK) {
-                    selectedMat = e.getCurrentItem().getType();
-                    player.closeInventory();
-                    chooseAmountGUI(player);
+                    if (e.getCurrentItem().getMaxStackSize() >= 16) {
+                        selectedMat = e.getCurrentItem().getType();
+                        player.closeInventory();
+                        chooseAmountGUI(player);
+                    }
                 }
             }
         }
@@ -186,6 +188,7 @@ public class ResourceCollectorMenuListener implements Listener {
                 }
 
                 player.closeInventory();
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 4, 1);
 
             }
         }
