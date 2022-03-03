@@ -380,10 +380,10 @@ public class Main extends JavaPlugin implements Listener {
             String[] rewardLine = lore.get(1).split(" ");
             if (rewardLine[1].equals("not-set")) {
                 reward = 0;
-                getLogger().info("reward = 0");
+//                getLogger().info("reward = 0");
             } else {
                 reward = Integer.parseInt(rewardLine[1]);
-                getLogger().info("reward = " + reward);
+//                getLogger().info("reward = " + reward);
             }
             Material material = icon.getType();
             ResourceCollectionJob job = new ResourceCollectionJob(material, amount, false);
@@ -513,6 +513,7 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("removePublicWorkAdministrator").setExecutor(new ConfigCommands(this));
         this.getCommand("summonResourceCollector").setExecutor(new ConfigCommands(this));
         this.getCommand("xpEconomySettings").setExecutor(new ConfigCommands(this));
+        this.getCommand("killNearestResourceCollector").setExecutor(new ConfigCommands(this));
         getLogger().info("Commands registered.");
 
         saveConfigFile();

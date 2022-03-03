@@ -57,6 +57,8 @@ public class ResourceCollector implements Listener {
 
         Inventory resourceCollectorGUIBanker = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Resource Collector");
 
+        Inventory resourceCollectorGUIBoth = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Resource Collector");
+
         ItemStack collectResourcesItem = new ItemStack(Material.CHEST, 1);
         ItemMeta collectResourcesItemMeta = collectResourcesItem.getItemMeta();
         collectResourcesItemMeta.setDisplayName(ChatColor.BLUE + "Collect resources");
@@ -66,6 +68,11 @@ public class ResourceCollector implements Listener {
         ItemMeta newJobItemMeta = newJobItem.getItemMeta();
         newJobItemMeta.setDisplayName(ChatColor.GREEN + "Create resource collection job");
         newJobItem.setItemMeta(newJobItemMeta);
+
+        ItemStack delJobItem = new ItemStack(Material.RED_CONCRETE, 1);
+        ItemMeta delJobItemMeta = delJobItem.getItemMeta();
+        delJobItemMeta.setDisplayName(ChatColor.RED + "Delete resource collection job");
+        delJobItem.setItemMeta(delJobItemMeta);
 
         ItemStack setReward = new ItemStack(Material.SUNFLOWER, 1);
         ItemMeta setRewardMeta = setReward.getItemMeta();
@@ -81,19 +88,36 @@ public class ResourceCollector implements Listener {
                     resourceCollectorGUI.setItem(i, job.getJobIcon());
                     resourceCollectorGUIPWA.setItem(i, job.getJobIcon());
                     resourceCollectorGUIBanker.setItem(i, job.getJobIcon());
+                    resourceCollectorGUIBoth.setItem(i, job.getJobIcon());
                     i++;
                 }
             }
         }
 
+        // adds special items on the third row for special people
+        //public works items
         resourceCollectorGUIPWA.setItem(18, newJobItem);
+        resourceCollectorGUIPWA.setItem(19, delJobItem);
         resourceCollectorGUIPWA.setItem(26, collectResourcesItem);
+
+        // banker items
         resourceCollectorGUIBanker.setItem(22, setReward);
 
-        if (main.isPWA(player)) {
-            player.openInventory(resourceCollectorGUIPWA);
-        } else if (main.isBanker(player)){
+        //both items
+        resourceCollectorGUIBoth.setItem(18, newJobItem);
+        resourceCollectorGUIBoth.setItem(19, delJobItem);
+        resourceCollectorGUIBoth.setItem(26, collectResourcesItem);
+        resourceCollectorGUIBoth.setItem(22, setReward);
+
+        if (main.isPWA(player) && main.isBanker(player)) {
+            // open both
+            player.openInventory(resourceCollectorGUIBoth);
+        } else if (main.isBanker(player)) {
+            // open banker
             player.openInventory(resourceCollectorGUIBanker);
+        } else if (main.isPWA(player)) {
+            // open pwa
+            player.openInventory(resourceCollectorGUIPWA);
         } else {
             player.openInventory(resourceCollectorGUI);
         }

@@ -44,6 +44,14 @@ public class ConfigCommands implements CommandExecutor {
             }
         }
 
+        if (command.getName().equalsIgnoreCase("killNearestResourceCollector")) {
+            if (sender instanceof Player) {
+                Player p = (Player) sender;
+                Bukkit.dispatchCommand(p, "kill @e[distance=..5,type=minecraft:wandering_trader,name=\"Resource Collector\"]");
+                return true;
+            }
+        }
+
         // assign public works
         if (command.getName().equalsIgnoreCase("assignPublicWorkAdministrator")) {
             if (args.length > 0) {

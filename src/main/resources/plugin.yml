@@ -24,3 +24,7 @@ commands:
     description: Removes the Public Work Administrator title from the specified player
     usage: /removePublicWorkAdministrator <player>
     permission: xpEconomy.removePublicWorkAdministrator
+  killNearestResourceCollector:
+    description: Kills Resource Collectors within a 5 block radius
+    usage: /killNearestResourceCollector
+    permission: xpEconomy.killNearestResourceCollector

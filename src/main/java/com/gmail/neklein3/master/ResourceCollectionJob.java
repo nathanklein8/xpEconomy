@@ -102,6 +102,6 @@ public class ResourceCollectionJob  implements ConfigurationSerializable {
     }
 
     public boolean hasReward() {
-        return reward == 0;
+        return reward != 0;
     }
 }

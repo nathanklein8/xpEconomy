@@ -56,6 +56,10 @@ public class ResourceCollectorMenuListener implements Listener {
                         player.closeInventory();
                         chooseBlockGUI(player);
                         break;
+                    case RED_CONCRETE:
+                        player.closeInventory();
+                        deleteJobGUI(player);
+                        break;
                     case SUNFLOWER:
                         player.closeInventory();
                         selectBlockForRewardGUI(player);
@@ -66,6 +70,27 @@ public class ResourceCollectorMenuListener implements Listener {
                     ResourceCollectionJob selectedJob = main.convertIconToJob(e.getCurrentItem());
                     main.completeJob(player, selectedJob);
                 }
+
+            }
+        }
+
+        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Select Job to delete")) {
+            if (e.getCurrentItem() != null) {
+                e.setCancelled(true);
+
+                if (main.ResourceCollectionJobList != null) {
+                    for (ResourceCollectionJob rcj : main.ResourceCollectionJobList) {
+                        if (rcj.getMaterial() == e.getCurrentItem().getType()) {
+                            main.ResourceCollectionJobList.remove(main.ResourceCollectionJobList.indexOf(rcj));
+                            break;
+                        }
+                    }
+                    Main.config.set("ResourceCollectionJobList", main.ResourceCollectionJobList);
+                    Main.saveConfigFile();
+                }
+
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+                e.getCurrentItem().setType(Material.AIR);
 
             }
         }
@@ -208,6 +233,24 @@ public class ResourceCollectorMenuListener implements Listener {
 
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
         player.openInventory(selectAmount);
+    }
+
+    public void deleteJobGUI(Player player) {
+        Inventory deleteJobInventory = Bukkit.createInventory(null, 18, ChatColor.DARK_GRAY + "Select Job to delete");
+
+        int i = 0;
+        if (main.ResourceCollectionJobList != null) {
+            for (ResourceCollectionJob job : main.ResourceCollectionJobList) {
+                if (i < 18) {
+                    deleteJobInventory.setItem(i, job.getJobIcon());
+                    deleteJobInventory.setItem(i, job.getJobIcon());
+                    i++;
+                }
+            }
+        }
+
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 7, 1);
+        player.openInventory(deleteJobInventory);
     }
 
     public void selectBlockForRewardGUI(Player player) {
