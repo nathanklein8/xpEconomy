@@ -71,7 +71,7 @@ public class Atm implements Listener {
                     return;
                 }
             }
-            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
+            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString()) || e.getPlayer().isOp()) {
                 // if the player is a banker
                 e.getPlayer().sendMessage("Atm Destroyed.");
                 main.removeIfTellerMachine(block);
@@ -93,6 +93,14 @@ public class Atm implements Listener {
                 TellerMachine tm = main.getTellerMachine(block.getLocation());
                 if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
                     if (tm.getEnabled()) {
+                        if (e.getPlayer().isSneaking()) {
+                            if (main.isBanker(e.getPlayer())) {
+                                tm.setEnabled(false);
+                                main.changeSignText(tm.getBlock(), 3, tm.getStatusString());
+                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                                return;
+                            }
+                        }
                         applyAtmUI(e.getPlayer());
                     } else {
                         if (main.getBankerUUIDString() != null) {

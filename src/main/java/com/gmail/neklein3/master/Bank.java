@@ -76,7 +76,7 @@ public class Bank implements Listener {
                     return;
                 }
             }
-            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString())) {
+            if (e.getPlayer().getUniqueId().toString().equals(main.getBankerUUIDString()) || e.getPlayer().isOp()) {
                 // if the player is a banker
                 e.getPlayer().sendMessage("Exchange Terminal Destroyed.");
                 main.removeIfExchangeTerminal(block);
@@ -97,6 +97,14 @@ public class Bank implements Listener {
             if (main.isExchangeTerminal(block)) {
                 ExchangeTerminal et = main.getExchangeTerminal(block.getLocation());
                 if (et.getEnabled()) {
+                    if (e.getPlayer().isSneaking()) {
+                        if (main.isBanker(e.getPlayer())) {
+                            et.setEnabled(false);
+                            main.changeSignText(et.getBlock(), 3, et.getStatusString());
+                            e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                            return;
+                        }
+                    }
                     if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
                         applyAtmUI(e.getPlayer());
                     }

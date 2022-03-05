@@ -45,6 +45,7 @@ public class Main extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
     }
+
     List<ResourceCollectionJob> CompletedResourceCollectionJobList = new ArrayList<>();
     List<ResourceCollectionJob> ResourceCollectionJobList = new ArrayList<>();
     List<JobSign> JobSignList = new ArrayList<>();
@@ -335,6 +336,36 @@ public class Main extends JavaPlugin implements Listener {
             config.set("JobSignList", JobSignList);
             saveConfigFile();
         }
+    }
+
+    public Boolean isJobSign(Block block) {
+        if (isSign(block)) {
+            if (!(JobSignList.isEmpty())) {
+                for (JobSign js : JobSignList) {
+                    if (js.getLocation().equals(block.getLocation())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public void removeIfJobSign(Block block) {
+        if (isSign(block)) {
+            JobSignList.removeIf(js -> js.getLocation().equals(block.getLocation()));
+            config.set("JobSignList", JobSignList);
+            saveConfigFile();
+        }
+    }
+
+    public JobSign getJobSign(Location l) {
+        for (JobSign js : JobSignList) {
+            if (js.getLocation().equals(l)) {
+                return js;
+            }
+        }
+        return null;
     }
 
     public boolean isPWA(Player player) {

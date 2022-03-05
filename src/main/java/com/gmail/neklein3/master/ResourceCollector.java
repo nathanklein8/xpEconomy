@@ -3,13 +3,17 @@ package com.gmail.neklein3.master;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -47,6 +51,37 @@ public class ResourceCollector implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onRightClickSign(PlayerInteractEvent e) {
+        Block block = e.getClickedBlock();
+        Action action = e.getAction();
+
+        if (block != null) {
+            if (main.isJobSign(block)) {
+                JobSign jobSign = main.getJobSign(block.getLocation());
+                if (jobSign.getEnabled()) {
+                    if (e.getPlayer().isSneaking()) {
+                        if (main.isPWA(e.getPlayer())) {
+                            jobSign.setEnabled(false);
+                            main.changeSignText(jobSign.getBlock(), 3, jobSign.getStatusString());
+                            e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                            return;
+                        }
+                    }
+                    if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
+                        applyUI(e.getPlayer());
+                    }
+                } else {
+                    if (main.isPWA(e.getPlayer())) {
+                        e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 5, 1);
+                        jobSign.setEnabled(true);
+                        main.changeSignText(jobSign.getBlock(), 3, jobSign.getStatusString());
+                    }
+                }
+            }
+        }
     }
 
     public void applyUI(Player player) {
